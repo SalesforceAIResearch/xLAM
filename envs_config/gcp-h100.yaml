@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: h100-pod-8
+  namespace: sfr-ns-<your-name>
+spec:
+  restartPolicy: OnFailure
+  volumes:
+    - name: sfr-home-pv-<your-name>
+      persistentVolumeClaim:
+        claimName: sfr-home-pvc-<your-name>
+    - name: sfr-share-pv-<your-name>
+      persistentVolumeClaim:
+        claimName: sfr-share-pvc-<your-name>
+    - name: sfr-flow-data-pv-<your-name>
+      persistentVolumeClaim:
+        claimName: sfr-flow-data-pvc-<your-name>
+    - name: sfr-share-eu-west4-pv-<your-name>
+      persistentVolumeClaim:
+        claimName: sfr-share-eu-west4-pvc-<your-name>
+    - name: dshm
+      emptyDir:
+        medium: Memory
+  containers:
+    - name: research-container
+      image: "gcr.io/salesforce-research-internal/xlam-2024-02-14"
+      command: ["/bin/sh", "-c"]
+      args: ["sleep 80d"]
+      resources:
+        limits:
+          nvidia.com/gpu: 8
+      volumeMounts:
+        - name: sfr-home-pv-<your-name>
+          mountPath: "/export/home"
+        - name: sfr-share-pv-<your-name>
+          mountPath: "/export/share"
+        - name: sfr-share-eu-west4-pv-<your-name>
+          mountPath: "/export/share-eu-west4"
+        - name: dshm
+          mountPath: /dev/shm
+  nodeSelector:
+    cloud.google.com/gke-accelerator: nvidia-h100-80gb
+  tolerations:
+  - key: "gpu_num"
+    operator: "Equal"
+    value: "8"
+    effect: "NoSchedule"
