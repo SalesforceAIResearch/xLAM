@@ -1,3 +1,3 @@
 # xLAM
-This repo is for research only.
+This repo is for research only purposes.
 
