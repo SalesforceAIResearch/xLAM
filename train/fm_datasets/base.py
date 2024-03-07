@@ -1,6 +1,6 @@
 from tqdm import tqdm
 from transformers import LlamaTokenizerFast
-from train.fm_utils.xgen_tokenizer import Xgen15BTokenizer
+from fm_utils.xgen_tokenizer import Xgen15BTokenizer
 
 
 class SFTFoundationModelDataBase:
@@ -25,16 +25,16 @@ class SFTFoundationModelDataBase:
             self._response_template = f"<|assistant|>\n"
             self._instruction_template = f"<|system|>\n{self.EOT}\n<|user|>\n"
         elif isinstance(tokenizer, LlamaTokenizerFast):
-            if "zephyr" in tokenizer.name_or_path:
+            if "zephyr" in tokenizer.name_or_path.lower():
                 self.BOT = ""
                 self.EOP = "<|endofprompt|>"
                 self.EOT = "<|endofprompt|>"
                 self._response_template = f"<|assistant|>\n"
                 self._instruction_template = "<|user|>\n"
-            elif "Mixtral" in tokenizer.name_or_path:
-                self.BOT = tokenizer.bos_token
+            elif "mixtral" in tokenizer.name_or_path.lower():
+                self.BOT = tokenizer.bos_token if not tokenizer.add_bos_token else ""
                 self.EOP = "[/INST]"
-                self.EOT = tokenizer.eos_token
+                self.EOT = tokenizer.eos_token if not tokenizer.add_eos_token else ""
                 # self._response_template = f"<|assistant|>\n"
                 self._response_template = self.EOP
                 self._instruction_template = "[INST]"
@@ -159,9 +159,19 @@ class DPOFoundationModelDataBase(SFTFoundationModelDataBase):
         raise NotImplementedError
 
     def prepare_sample_text(self, example):
-        return {
-                "prompt": [f"{self.instruction_template} {question}"
-                           for question in example["prompt"]],
+        if isinstance(example, list):
+            output_texts = []
+            for i in range(len(example)):
+                text = {
+                    "prompt": f"{self.BOT} {self.instruction_template} {example[i]['prompt']} {self.EOP}",
+                    "chosen": example[i]["chosen"],
+                    "rejected": example[i]["rejected"],
+                }
+                output_texts.append(text)
+            return output_texts
+        else:
+            return {
+                "prompt": f"{self.BOT} {self.instruction_template} {example['prompt']} {self.EOP}",
                 "chosen": example["chosen"],
                 "rejected": example["rejected"],
             }
