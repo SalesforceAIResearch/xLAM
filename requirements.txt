@@ -1,0 +1,11 @@
+transformers==4.35.0
+trl==0.7.2
+peft==0.5.0
+accelerate==0.25.0
+datasets
+bitsandbytes==0.41.1
+wandb
+jsonlines
+tiktoken
+typing-inspect==0.8.0
+typing_extensions==4.5.0

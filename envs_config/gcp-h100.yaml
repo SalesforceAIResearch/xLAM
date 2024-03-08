@@ -1,25 +1,24 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: h100-pod-8
-  namespace: sfr-ns-<your-name>
+  name: my_computation_server
+  namespace: <your-name-space>
 spec:
   restartPolicy: OnFailure
   volumes:
-    - name: sfr-home-pv-<your-name>
+    - name: <your-name>
       persistentVolumeClaim:
-        claimName: sfr-home-pvc-<your-name>
+        claimName: <your-name>
   containers:
     - name: research-container
       image: "gcr.io/salesforce-research-internal/xlam-2024-02-14"
       command: ["/bin/sh", "-c"]
-      args: ["sleep 80d"]
       resources:
         limits:
           nvidia.com/gpu: 8
       volumeMounts:
-        - name: sfr-home-pv-<your-name>
-          mountPath: "/export/home"
+        - name: <your-name>
+          mountPath: "/home"
   nodeSelector:
     cloud.google.com/gke-accelerator: nvidia-h100-80gb
   tolerations:

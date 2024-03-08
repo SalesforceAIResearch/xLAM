@@ -20,7 +20,7 @@ from transformers.trainer_utils import EvalPrediction
 
 from trl.import_utils import is_peft_available
 from trl.trainer.utils import DataCollatorForCompletionOnlyLM, PeftSavingCallback
-from fm_utils.derived_dataset import ConstantLengthDataset, PromptAnswerDataset
+from xLAM.train.fm_utils.derived_dataset import ConstantLengthDataset, PromptAnswerDataset
 
 
 if is_peft_available():

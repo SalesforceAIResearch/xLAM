@@ -3,7 +3,7 @@ from datasets import interleave_datasets
 import warnings
 import random
 import torch
-from train.fm_datasets.base import SFTFoundationModelDataBase
+from xLAM.train.fm_datasets.base import SFTFoundationModelDataBase
 from transformers import LlamaTokenizerFast
 
 

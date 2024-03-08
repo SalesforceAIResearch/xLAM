@@ -1,5 +1,5 @@
 from datasets import interleave_datasets
-from train.fm_utils.derived_dataset import ConstantLengthDataset, PromptAnswerDataset
+from xLAM.train.fm_utils.derived_dataset import ConstantLengthDataset, PromptAnswerDataset
 
 
 def interleave_data(data_objects, sample_probs=None, seed=None, return_type="constant_length", **kwargs):

@@ -4,7 +4,7 @@ import torch
 from peft import PeftConfig, PeftModel
 from accelerate import Accelerator
 from transformers import AutoModelForCausalLM, AutoModelForSequenceClassification, AutoTokenizer, HfArgumentParser, BitsAndBytesConfig
-from fm_utils.xgen_tokenizer import Xgen15BTokenizer
+from xLAM.train.fm_utils.xgen_tokenizer import Xgen15BTokenizer
 
 @dataclass
 class ScriptArguments:
