@@ -1,6 +1,6 @@
 from tqdm import tqdm
 from transformers import LlamaTokenizerFast
-from fm_utils.xgen_tokenizer import Xgen15BTokenizer
+from xLAM.train.fm_utils.xgen_tokenizer import Xgen15BTokenizer
 
 
 class SFTFoundationModelDataBase:

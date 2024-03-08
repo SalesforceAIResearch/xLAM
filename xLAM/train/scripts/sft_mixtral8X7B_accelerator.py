@@ -8,18 +8,18 @@ from accelerate import Accelerator
 from peft import AutoPeftModelForCausalLM, LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, HfArgumentParser, TrainingArguments
 
-from train.fm_datasets \
+from xLAM.train.fm_datasets \
     import (webshop_multi_turn_v2,
             hotpotqa_multi_turn_v2,
             toolalpaca_multi_turn_v2,
             toolbench_multi_turn_v2,
             apibank_multi_turn_v2,)
-from train.fm_datasets.base import SFTFoundationModelDataBase
-from train.fm_utils.interleave_datasets import interleave_data
-from train.fm_utils.derived_data_collator import DataCollatorForPromptAnswer
-from train.fm_utils.common import bookkeep_dataset_args, bookkeep_script_args
-from train.fm_utils.seed_random import init_device_seed
-from train.fm_trainers.sft_foundation_trainer import SFTFoundationTrainer
+from xLAM.train.fm_datasets.base import SFTFoundationModelDataBase
+from xLAM.train.fm_utils.interleave_datasets import interleave_data
+from xLAM.train.fm_utils.derived_data_collator import DataCollatorForPromptAnswer
+from xLAM.train.fm_utils.common import bookkeep_dataset_args, bookkeep_script_args
+from xLAM.train.fm_utils.seed_random import init_device_seed
+from xLAM.train.fm_trainers.sft_foundation_trainer import SFTFoundationTrainer
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -27,7 +27,6 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 class ScriptArguments:
     model_name: Optional[str] = field(default="mistralai/Mixtral-8x7B-Instruct-v0.1", metadata={"help": "the model name"})
     log_with: Optional[str] = field(default="wandb", metadata={"help": "use 'wandb' to log with wandb"})
-    run_name: Optional[str] = field(default="agent_foundation_Mixtral-8x7B-Instruct", metadata={"help": "experiment run name for 'wandb'"})
     collator: Optional[str] = field(default="PromptAnswerDataCollator", metadata={"help": "How to collate data for training"})
     size_valid_set: Optional[int] = field(default=4000, metadata={"help": "the size of the validation set"})
     streaming: Optional[bool] = field(default=True, metadata={"help": "whether to stream the dataset"})
@@ -37,14 +36,13 @@ class ScriptArguments:
 
     max_steps: Optional[int] = field(default=8000, metadata={"help": "the maximum number of sgd steps"})
     logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency"})
-    save_steps: Optional[int] = field(default=1000, metadata={"help": "the saving frequency"})
+    save_steps: Optional[int] = field(default=500, metadata={"help": "the saving frequency"})
     per_device_train_batch_size: Optional[int] = field(default=3, metadata={"help": "the per device train batch size"})
     per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "the per device eval batch size"})
     gradient_accumulation_steps: Optional[int] = field(default=2, metadata={"help": "the gradient accumulation steps"})
     gradient_checkpointing: Optional[bool] = field(
         default=True, metadata={"help": "whether to use gradient checkpointing"}
     )
-    ds_config_path: Optional[str] = field(default="./ds_zero2.json", metadata={"help": "deepspeed config path"})
     group_by_length: Optional[bool] = field(default=False, metadata={"help": "whether to group by length"})
     packing: Optional[bool] = field(default=True, metadata={"help": "whether to use packing for SFTTrainer"})
 
@@ -62,9 +60,10 @@ class ScriptArguments:
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
 
     data_save_dir: Optional[str] = field(
-        default = "",
+        default="",
         metadata={"help": "the default dataset dir"}
     )
+
 
 parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
@@ -99,7 +98,6 @@ base_model = AutoModelForCausalLM.from_pretrained(
     script_args.model_name,
     quantization_config=bnb_config,
     device_map={"": Accelerator().local_process_index},
-    attn_implementation="flash_attention_2",
     trust_remote_code=True,
     use_auth_token=True,
 )
@@ -113,9 +111,6 @@ peft_config = LoraConfig(
                     "v_proj",
                     "k_proj",
                     "o_proj",
-                    "fc_in",
-                    "fc_out",
-                    "wte"
                     ],
     bias="none",
     task_type="CAUSAL_LM",
@@ -144,11 +139,9 @@ training_args = TrainingArguments(
     warmup_steps=script_args.num_warmup_steps,
     optim=script_args.optimizer_type,
     bf16=True,
-    tf32=True,
-    deepspeed=script_args.ds_config_path,
     remove_unused_columns=False,
     ddp_find_unused_parameters=False,
-    run_name=script_args.run_name,
+    run_name="sft-mixtral8X7b-v2",
 )
 
 sft_webshop_multi_turn = webshop_multi_turn_v2.SFTWebShopMultiTurnV2(tokenizer, script_args)
@@ -161,13 +154,13 @@ data = [
     sft_webshop_multi_turn,  # 14,082
     sft_hotpotqa_multi_turn,  # 1919
     sft_toolalpaca_multi_turn,  # 8,599
-    sft_toolbench_multi_turn,  # 57843
+    sft_toolbench_multi_turn,  # 57,843
     sft_apibank_multi_turn,  # 4,902
 ]
 
 sample_probs = [0.15, 0.02, 0.08, 0.7, 0.05]
 
-seed = init_device_seed(seed=42) # we have device specific seed control
+seed = init_device_seed(seed=42)  # we have device specific seed control
 
 if script_args.collator == "PromptAnswerDataCollator":
     # train on the generated prompts only
@@ -182,6 +175,7 @@ if script_args.collator == "PromptAnswerDataCollator":
                                            response_template=response_template_ids,
                                            tokenizer=tokenizer,
                                            mlm=False)
+
     train_dataset, eval_dataset = \
         interleave_data(
             data_objects=data,
@@ -210,12 +204,5 @@ trainer.save_model(script_args.output_dir)
 output_dir = os.path.join(script_args.output_dir, "final_checkpoint")
 trainer.model.save_pretrained(output_dir)
 
-if isinstance(collator, DataCollatorForPromptAnswer):
-    print("***** Final sample usage summary *****")
-    print(f"samples_total: {collator.samples_total}")
-    print(f"samples skip due to no response: {collator.samples_skip_no_response}")
-    print(f"samples skip due to no instruct: {collator.samples_skip_no_instruct}")
-
 bookkeep_script_args(script_args, script_args.output_dir)
 bookkeep_dataset_args(data, sample_probs, script_args.output_dir)
-

@@ -1,5 +1,5 @@
 from datasets import load_dataset, IterableDataset
-from train.fm_datasets.base import SFTFoundationModelDataBase
+from xLAM.train.fm_datasets.base import SFTFoundationModelDataBase
 from agentstudio import agents
 import os
 
