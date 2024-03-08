@@ -26,3 +26,8 @@ Then, you can `pip install -e . --no-dependencies`
 
 Or, you can directly `pip install -e .`. There is a chance that your configured environment might have some error.
 
+# Train
+
+```bash
+nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/train/scripts/sft_mixtral8X7B_accelerator.py --model_name mistralai/Mixtral-8x7B-Instruct-v0.1 --seq_length 4096 --run_name sft_mixtral8X7B_v2_02072024 --output_dir {path} > sft_mixtral8X7B_v2_02072024.nohup 2>&1 &
+```
