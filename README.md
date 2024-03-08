@@ -20,3 +20,9 @@ A unified data formatting and streaming loader.
 ## fm_trainers
 Supervised fine tuning and DPO fine tuning. 
 
+# Installation
+You can use our configured docker environment `gcr.io/salesforce-research-internal/xlam-2024-02-14`, and one example yaml file is shown at `envs_config`.
+Then, you can `pip install -e . --no-dependencies`
+
+Or, you can directly `pip install -e .`. There is a chance that your configured environment might have some error.
+
