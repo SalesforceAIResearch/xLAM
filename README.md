@@ -1,4 +1,6 @@
 # xLAM
+This repo is for research purpose only.
+
 
 Autonomous agents powered by large language models (LLMs) have garnered significant research attention. However, fully harnessing the potential of LLMs for
 agent-based tasks presents inherent challenges due to the heterogeneous nature of
@@ -17,3 +19,4 @@ A unified data formatting and streaming loader.
 
 ## fm_trainers
 Supervised fine tuning and DPO fine tuning. 
+
