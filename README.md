@@ -1,4 +1,20 @@
-# xLAM
+<div align="center">
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main"><img width="300px" height="auto" src="./images/xlam-no-background.png"></a>
+</div>
+
+<br/>
+
+<div align="center">
+
+  ![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)
+  [![License](https://img.shields.io/badge/License-Apache-green.svg)](https://github.com/MetaMind/AgentLite/blob/main/LICENSE)
+  [![CodeCov](https://codecov.io/gh/MetaMind/AgentLite/branch/main/graph/badge.svg)](https://codecov.io/gh/MetaMind/AgentLite)
+  [![GitHub Repo Stars](https://img.shields.io/github/stars/MetaMind/AgentLite?color=brightgreen&logo=github)](https://github.com/MetaMind/AgentLite/stargazers)
+  <!-- [![Documentation Status](https://img.shields.io/readthedocs/agentlite?logo=readthedocs)](https://agentlite.readthedocs.io) -->
+  <!-- [![Tests](https://github.com/MetaMind/AgentLite/actions/workflows/test.yml/badge.svg)](https://github.com/MetaMind/AgentLite/actions/workflows/test.yml) -->
+  <!-- [![Downloads](https://static.pepy.tech/personalized-badge/agentlite?period=total&left_color=grey&right_color=blue&left_text=downloads)](https://pepy.tech/project/agentlite) -->
+
+
 This repo is for research purpose only.
 
 
