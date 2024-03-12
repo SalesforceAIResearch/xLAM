@@ -4,18 +4,16 @@
 
 <br/>
 
+
 <div align="center">
 
-  ![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)
-  [![License](https://img.shields.io/badge/License-Apache-green.svg)](https://github.com/MetaMind/AgentLite/blob/main/LICENSE)
-  [![CodeCov](https://codecov.io/gh/MetaMind/AgentLite/branch/main/graph/badge.svg)](https://codecov.io/gh/MetaMind/AgentLite)
-  [![GitHub Repo Stars](https://img.shields.io/github/stars/MetaMind/AgentLite?color=brightgreen&logo=github)](https://github.com/MetaMind/AgentLite/stargazers)
-  <!-- [![Documentation Status](https://img.shields.io/readthedocs/agentlite?logo=readthedocs)](https://agentlite.readthedocs.io) -->
-  <!-- [![Tests](https://github.com/MetaMind/AgentLite/actions/workflows/test.yml/badge.svg)](https://github.com/MetaMind/AgentLite/actions/workflows/test.yml) -->
-  <!-- [![Downloads](https://static.pepy.tech/personalized-badge/agentlite?period=total&left_color=grey&right_color=blue&left_text=downloads)](https://pepy.tech/project/agentlite) -->
+  <!-- [![Release Notes](https://img.shields.io/github/release/SalesforceAIResearch/xLAM)](https://github.com/SalesforceAIResearch/xLAM/releases) -->
+  ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-brightgreen.svg)
+  [![License](https://img.shields.io/badge/License-Apache-green.svg)]()
+  [![GitHub star chart](https://img.shields.io/github/stars/SalesforceAIResearch/xLAM?style=social)](https://star-history.com/#SalesforceAIResearch/xLAM)
 
 
-This repo is for research purpose only.
+This repo is for research purposes only.
 
 
 Autonomous agents powered by large language models (LLMs) have garnered significant research attention. However, fully harnessing the potential of LLMs for
