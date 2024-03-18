@@ -29,7 +29,7 @@ for agent training. Leveraging the data unification, our training pipeline maint
 equilibrium across different data sources and preserves independent randomness
 across devices during dataset partitioning and model training. 
 
-<img width="600" src="https://github.com/MetaMind/tianlan-scratchpad/assets/31748898/723f34ba-6581-4973-8fae-1411a7a53cf0">
+<img width="500" src="./images/framework.png">
 
 # Framework
 
