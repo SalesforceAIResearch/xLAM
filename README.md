@@ -29,7 +29,12 @@ for agent training. Leveraging the data unification, our training pipeline maint
 equilibrium across different data sources and preserves independent randomness
 across devices during dataset partitioning and model training. 
 
-<img width="500" src="./images/framework.png">
+
+<p align="center">
+    <br>
+    <img src="./images/framework.png" width="700"/>
+    <br>
+<p>
 
 # Framework
 
