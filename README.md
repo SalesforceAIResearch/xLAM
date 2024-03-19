@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main"><img width="300px" height="auto" src="./images/xlam-no-background.png"></a>
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main"><img width="350px" height="auto" src="./images/xlam-no-background.png"></a>
 </div>
 
 <br/>
@@ -18,7 +18,7 @@
 </div>
 
 ## 🎉 News
-- **[03.2024]** [xLAM model](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is released! Try it together with [AgentLite benchmark](./benchmark/) or other benchmarks, which is comparable to GPT-4!
+- **[03.2024]** [xLAM model](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is released! Try it together with [AgentLite benchmark](https://github.com/SalesforceAIResearch/AgentLite/tree/main/benchmark) or other benchmarks, which is comparable to GPT-4!
 - **[02.2024]** Initial Release of AgentOhana and xLAM [paper](https://arxiv.org/abs/2402.15506)!
 
 
