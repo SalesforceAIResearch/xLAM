@@ -53,9 +53,9 @@ across devices during dataset partitioning and model training.
     <br>
 <p>
 
-# Model
+# Model Instruction
 
-If you already know [Mixtral](https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1), xLAM-v0.1 is a significant upgrade and better at many things. 
+If you already know [Mixtral](https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1), [xLAM-v0.1](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is a significant upgrade and better at many things. 
 For the same number of parameters, the model have been fine-tuned across a wide range of agent tasks and scenarios, all while preserving the capabilities of the original model.
 
 xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
