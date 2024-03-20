@@ -17,11 +17,11 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2402.15506">Paper</a> |
   <!-- <a href="https://github.com/SalesforceAIResearch/AgentLite/tree/main?tab=readme-ov-file#-key-features">Key Features</a> | -->
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-model">Model</a> |
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-framework">Framework</a> |
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-examples">Installation</a> |
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-train">Train</a> |
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-benchmarks">Benchmarks</a>
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#model">Model</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#framework">Framework</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#examples">Installation</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#train">Train</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#benchmarks">Benchmarks</a>
 </p>
 
 ---
