@@ -4,9 +4,6 @@
 
 <br/>
 
-
-
-
 <div align="center">
 
   <!-- [![Release Notes](https://img.shields.io/github/release/SalesforceAIResearch/xLAM)](https://github.com/SalesforceAIResearch/xLAM/releases) -->
@@ -16,6 +13,18 @@
  [![GitHub star chart](https://img.shields.io/github/stars/SalesforceAIResearch/xLAM?style=social)](https://star-history.com/#SalesforceAIResearch/xLAM)
 
 </div>
+
+<p align="center">
+  <a href="https://arxiv.org/abs/2402.15506">Paper</a> |
+  <!-- <a href="https://github.com/SalesforceAIResearch/AgentLite/tree/main?tab=readme-ov-file#-key-features">Key Features</a> | -->
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-model">Model</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-framework">Framework</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-examples">Installation</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-train">Train</a> |
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#-benchmarks">Benchmarks</a>
+</p>
+
+---
 
 ## 🎉 News
 - **[TODO]**: Update data and code.
@@ -43,6 +52,40 @@ across devices during dataset partitioning and model training.
     <img src="./images/framework.png" width="700"/>
     <br>
 <p>
+
+# Model
+
+If you already know [Mixtral](https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1), xLAM-v0.1 is a significant upgrade and better at many things. 
+For the same number of parameters, the model have been fine-tuned across a wide range of agent tasks and scenarios, all while preserving the capabilities of the original model.
+
+xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
+This model is compatible with VLLM and FastChat platforms. 
+
+
+
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("Salesforce/xLAM-v0.1-r")
+model = AutoModelForCausalLM.from_pretrained("Salesforce/xLAM-v0.1-r", device_map="auto")
+
+messages = [
+    {"role": "user", "content": "What is your favourite condiment?"},
+    {"role": "assistant", "content": "Well, I'm quite partial to a good squeeze of fresh lemon juice. It adds just the right amount of zesty flavour to whatever I'm cooking up in the kitchen!"},
+    {"role": "user", "content": "Do you have mayonnaise recipes?"}
+]
+
+inputs = tokenizer.apply_chat_template(messages, return_tensors="pt").to("cuda")
+
+outputs = model.generate(inputs, max_new_tokens=512)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+```
+
+**Note:** You may need to tune the Temperature setting  for different applications. Typically, a lower Temperature is helpful for tasks that require deterministic outcomes. 
+Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable.
+
+
 
 # Framework
 
@@ -179,7 +222,7 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 
 
 
-## ToolBench
+## [ToolBench](https://github.com/OpenBMB/ToolBench)
 
 <div class="datagrid" style="width:780px;">
 <table>
@@ -234,3 +277,16 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 </tbody>
 </table>
 
+
+# Citation
+
+If you find our paper, code or model is useful, please cite
+
+```
+@article{zhang2024agentohana,
+  title={AgentOhana: Design Unified Data and Training Pipeline for Effective Agent Learning},
+  author={Zhang, Jianguo and Lan, Tian and Murthy, Rithesh and Liu, Zhiwei and Yao, Weiran and Tan, Juntao and Hoang, Thai and Yang, Liangwei and Feng, Yihao and Liu, Zuxin and others},
+  journal={arXiv preprint arXiv:2402.15506},
+  year={2024}
+}
+```
