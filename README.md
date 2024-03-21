@@ -22,6 +22,7 @@
   <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#installation">Installation</a> |
   <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#train">Train</a> |
   <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#benchmarks">Benchmarks</a>
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#acknowledgement">Acknowledgement</a>
 </p>
 
 ---
@@ -50,6 +51,7 @@ across devices during dataset partitioning and model training.
 <p align="center">
     <br>
     <img src="./images/framework.png" width="700"/>
+    <img src="./images/roadmap.png" width="700"/>
     <br>
 <p>
 
@@ -83,7 +85,7 @@ print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
 **Note:** You may need to tune the Temperature setting  for different applications. Typically, a lower Temperature is helpful for tasks that require deterministic outcomes. 
-Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable.
+Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable and important. 
 
 
 
@@ -278,9 +280,9 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 </table>
 
 
-# Citation
+# Acknowledgement
 
-If you find our paper, code or model is useful, please cite
+We want to acknowledge the work which have made contributions to our paper and the agent research community! Besides, if you find our paper, code or model is useful, please cite
 
 ```
 @article{zhang2024agentohana,
