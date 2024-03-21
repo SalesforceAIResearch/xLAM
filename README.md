@@ -93,7 +93,7 @@ Additionally, for tasks demanding adherence to specific formats or function call
 
 ## A unified data formatting and streaming loader. 
 
-```
+```python
 from fm_datasets import webshop_multi_turn_v2
 from fm_utils.seed_random import init_device_seed
 from fm_utils.interleave_datasets import interleave_data
@@ -115,7 +115,7 @@ train_dataset, eval_dataset = \
 
 ## Supervised fine tuning and DPO fine tuning. 
 
-```
+```python
 from fm_utils.derived_data_collator import DataCollatorForPromptAnswer
 from fm_trainers.sft_foundation_trainer import SFTFoundationTrainer
 
@@ -282,9 +282,9 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 
 # Acknowledgement
 
-We want to acknowledge the work which have made contributions to our paper and the agent research community! Besides, if you find our paper, code or model is useful, please cite
+We want to acknowledge the work which have made contributions to our paper and the agent research community! If you find our work useful, please consider to cite
 
-```
+```bibtex
 @article{zhang2024agentohana,
   title={AgentOhana: Design Unified Data and Training Pipeline for Effective Agent Learning},
   author={Zhang, Jianguo and Lan, Tian and Murthy, Rithesh and Liu, Zhiwei and Yao, Weiran and Tan, Juntao and Hoang, Thai and Yang, Liangwei and Feng, Yihao and Liu, Zuxin and others},
