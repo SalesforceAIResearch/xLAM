@@ -266,7 +266,7 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 <!-- <thead><tr><th></th><th colspan="2">Easy</th><th colspan="2">Medium</th><th colspan="2">Hard</th></tr></thead> -->
 <thead><tr><th>LLM Name</th><th>Success Rate</th><th>Progress Rate</th></tr></thead>
 <tbody>
-<tr><td>xLAM-v0.1-r</td><td>0.433</td><td>0.677</td></tr>
+<tr><td>xLAM-v0.1-r</td><td><strong>0.533</strong></td><td><strong>0.766</strong></td></tr>
 <tr><td>DeepSeek-67B </td><td>0.400 </td><td>0.714</td></tr>
 <tr><td>GPT-3.5-Turbo-0613 </td><td>0.367 </td><td>0.627</td></tr>
 <tr><td>GPT-3.5-Turbo-16k </td><td>0.317</td><td>0.591</td></tr>
