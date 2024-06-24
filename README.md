@@ -279,6 +279,9 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 </tbody>
 </table>
 
+# Licenses
+
+This code is licensed under Apache 2.0.  For models based on the [deepseek model](https://huggingface.co/collections/deepseek-ai/deepseek-coder-65f295d7d8a0a29fe39b4ec4), which require you to follow the use based restrictions in the [linked deepseek license](https://github.com/deepseek-ai/deepseek-coder/blob/main/LICENSE-MODEL). This is a research only project.
 
 # Acknowledgement
 
