@@ -28,7 +28,7 @@
 ---
 
 ## 🎉 News
-- **[TODO]**: Update data and code.
+- **[TODO]**: Just **passed Legal Review Process (July 05)** and we are working extremely hard on updating code and releasing all the models.
 - **[03.2024]** [xLAM model](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is released! Try it together with [AgentLite benchmark](https://github.com/SalesforceAIResearch/AgentLite/tree/main/benchmark) or other benchmarks, which is comparable to GPT-4!
 - **[02.2024]** Initial Release of AgentOhana and xLAM [paper](https://arxiv.org/abs/2402.15506)!
 
