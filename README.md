@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main"><img width="350px" height="auto" src="./images/xLAM@2400px.png"></a>
+  <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main"><img width="400px" height="auto" src="./images/xLAM@2400px.png"></a>
 </div>
 
 <br/>
