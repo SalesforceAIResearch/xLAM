@@ -138,7 +138,7 @@ Once the model is served, you can use the following xLAM client to interact with
 from xLAM.client import xLAMChatCompletion, xLAMConfig
 
 # Configure the client
-config = xLAMConfig(base_url="http://35.222.47.179:8000/v1/", model="xLAM-8x7b-r")
+config = xLAMConfig(base_url="http://localhost:8000/v1/", model="xLAM-8x7b-r")
 llm = xLAMChatCompletion.from_config(config)
 
 # Example conversation
