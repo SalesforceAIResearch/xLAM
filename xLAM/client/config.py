@@ -1,3 +1,4 @@
+"""Configuration class for xLAM client."""
 class xLAMConfig:
     r"""
     Configuration class for xLAM client.
