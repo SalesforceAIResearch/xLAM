@@ -88,7 +88,109 @@ print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 **Note:** You may need to tune the Temperature setting  for different applications. Typically, a lower Temperature is helpful for tasks that require deterministic outcomes. 
 Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable and important. 
 
+# Deploying and Interacting with xLAM Models
 
+There are two main options for serving the xLAM model as an OpenAI-compatible chat completion API (here we use `Salesforce/xLAM-8x7b-r` as an example):
+
+## Option 1: Using vLLM (Recommended)
+
+vLLM offers efficient serving with lower latency. To serve the model with vLLM:
+
+```bash
+python -u -m vllm.entrypoints.openai.api_server \
+       --host 0.0.0.0 \
+       --model Salesforce/xLAM-8x7b-r \
+       --tensor-parallel-size 2 \  # Adjust based on your available GPUs
+       --load-format pt  # Needed since both 'pt' and 'safetensors' are available
+```
+
+## Option 2: Using FastChat
+
+FastChat provides a more feature-rich serving setup. To serve with FastChat:
+
+1. Start the controller:
+```bash
+python3 -m fastchat.serve.controller --host 0.0.0.0
+```
+
+2. Start the OpenAI-compatible API server:
+```bash
+python3 -m fastchat.serve.openai_api_server --host 0.0.0.0 --port 8000
+```
+
+3. Launch the model worker:
+```bash
+python3 -m fastchat.serve.vllm_worker \
+       --model-names "xLAM-8x7b-r" \
+       --model-path Salesforce/xLAM-8x7b-r \
+       --host 0.0.0.0 \
+       --port 31005 \
+       --worker-address http://localhost:31001 \
+       --num-gpus 4 \
+       --limit-worker-concurrency 64
+```
+
+## Using the Chat Completion API
+
+Once the model is served, you can use the following xLAM client to interact with it for function calling or other applications:
+
+```python
+from xLAM.client import xLAMChatCompletion, xLAMConfig
+
+# Configure the client
+config = xLAMConfig(base_url="http://35.222.47.179:8000/v1/", model="xLAM-8x7b-r")
+llm = xLAMChatCompletion.from_config(config)
+
+# Example conversation
+messages = [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "What's the weather like in New York?"},
+    {"role": "assistant", "content": "To get the weather information for New York, I'll need to use the get_weather function.", "tool_calls": {"name": "get_weather", "arguments": '{"location": "New York", "unit": "fahrenheit"}'}},
+    {"role": "tool", "name": "get_weather", "content": '{"temperature": 72, "description": "Partly cloudy"}'},
+    {"role": "user", "content": "Now, search for the weather in San Francisco."}
+]
+
+# Example function definition (optional)
+tools = [
+    {
+        "name": "get_weather",
+        "description": "Get the current weather for a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string", "description": "The city and state, e.g. San Francisco, New York"},
+                "unit": {"type": "string", "enum": ["celsius", "fahrenheit"], "description": "The unit of temperature to return"}
+            },
+            "required": ["location"]
+        }
+    },
+    {
+        "name": "search",
+        "description": "Search for information on the internet",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "The search query, e.g. 'latest news on AI'"}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "respond",
+        "description": "When you are ready to respond, use this function. This function allows the assistant to formulate and deliver appropriate replies based on the input message and the context of the conversation. Generate a concise response for simple questions, and a more detailed response for complex questions.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "message": {"type": "string", "description": "The content of the message to respond to."}
+            },
+            "required": ["message"]
+        }
+    }
+]
+
+response = llm.completion(messages, tools=tools)
+print(response)
+```
 
 # Framework
 
