@@ -97,11 +97,7 @@ There are two main options for serving the xLAM model as an OpenAI-compatible ch
 vLLM offers efficient serving with lower latency. To serve the model with vLLM:
 
 ```bash
-python -u -m vllm.entrypoints.openai.api_server \
-       --host 0.0.0.0 \
-       --model Salesforce/xLAM-8x7b-r \
-       --tensor-parallel-size 2 \  # Adjust based on your available GPUs
-       --load-format pt  # Needed since both 'pt' and 'safetensors' are available
+vllm serve Salesforce/xLAM-8x7b-r --host 0.0.0.0 --port 8000 --tensor-parallel-size 4
 ```
 
 ## Option 2: Using FastChat
