@@ -117,7 +117,7 @@ python3 -m fastchat.serve.openai_api_server --host 0.0.0.0 --port 8000
 3. Launch the model worker:
 ```bash
 python3 -m fastchat.serve.vllm_worker \
-       --model-names "xLAM-8x7b-r" \
+       --model-names "Salesforce/xLAM-8x7b-r" \
        --model-path Salesforce/xLAM-8x7b-r \
        --host 0.0.0.0 \
        --port 31005 \
@@ -134,7 +134,7 @@ Once the model is served, you can use the following xLAM client to interact with
 from xLAM.client import xLAMChatCompletion, xLAMConfig
 
 # Configure the client
-config = xLAMConfig(base_url="http://localhost:8000/v1/", model="xLAM-8x7b-r")
+config = xLAMConfig(base_url="http://localhost:8000/v1/", model="Salesforce/xLAM-8x7b-r")
 llm = xLAMChatCompletion.from_config(config)
 
 # Example conversation
