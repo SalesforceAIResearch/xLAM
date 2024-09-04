@@ -90,7 +90,7 @@ Additionally, for tasks demanding adherence to specific formats or function call
 
 # Deploying and Interacting with xLAM Models
 
-There are two main options for serving the xLAM model as an OpenAI-compatible chat completion API (here we use `Salesforce/xLAM-8x7b-r` as an example):
+There are two main options for serving the xLAM model as an OpenAI-compatible chat completion API (here we use `Salesforce/xLAM-8x7b-r` and 4xA100 (40GB) setup as an example):
 
 ## Option 1: Using vLLM (Recommended)
 
