@@ -213,11 +213,16 @@ train_dataset, eval_dataset = \
 
 
 ## Supervised fine tuning and DPO fine tuning. 
+We have SFT trainer v1 and v2lite, 
+where v1 is more based on `trl` module optimized for LoRA while v2lite is starting from scratch with Accelerator optimized for fully-finetuning.
+They share almost the same interface.
 
 ```python
-from fm_utils.derived_data_collator import DataCollatorForPromptAnswer
-from fm_trainers.sft_foundation_trainer import SFTFoundationTrainer
+from xLAM.fm_utils.derived_data_collator import DataCollatorForPromptAnswer
+from xLAM.fm_trainers.sft_foundation_trainer import SFTFoundationTrainer
+from xLAM.train.fm_trainers.sft_foundation_trainer_lite import SFTFoundationTrainerLite, prepare_accelerator
 
+script_args = parser.parse_args_into_dataclasses()[0]
 
 collator = DataCollatorForPromptAnswer(
     instruction_template=instruction_template_ids,
@@ -225,17 +230,16 @@ collator = DataCollatorForPromptAnswer(
     tokenizer=tokenizer,
     mlm=False)
 
-trainer = SFTFoundationTrainer(
-    model=base_model,
-    train_dataset=train_dataset,
-    eval_dataset=eval_dataset,
-    peft_config=peft_config,
-    packing=False,
-    max_seq_length=None,
-    tokenizer=tokenizer,
-    args=training_args,
-    data_collator=collator,
-)
+# v2 trainer
+
+accelerator = prepare_accelerator(script_args)
+trainer = SFTFoundationTrainerLite(
+        args=script_args,
+        accelerator=accelerator,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        collator=collator,
+    )
 
 trainer.train()
 ```
@@ -250,10 +254,18 @@ Or, you can directly `pip install -e .`. There is a chance that your configured 
 
 You can refer to the complete example [scripts](https://github.com/SalesforceAIResearch/xLAM/tree/main/xLAM/train/scripts) to learn more details
 
-Or you can simply run this bash script to have a quick start for our example
+Or you can simply run the bash scripts to have a quick start for our example
+
+for v1: 
 ```bash
-nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/train/scripts/sft_mixtral8X7B_accelerator.py --model_name mistralai/Mixtral-8x7B-Instruct-v0.1 --seq_length 4096 --run_name sft_mixtral8X7B_v2_02072024 --output_dir {path} > sft_mixtral8X7B_v2_02072024.nohup 2>&1 &
+nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/train/scripts/sft_train_model_v1.py --model_name mistralai/Mixtral-8x7B-Instruct-v0.1 --seq_length 4096 --run_name sft_mixtral8X7B_v2_02072024 --output_dir {path} > sft_mixtral8X7B_v2_02072024.nohup 2>&1 &
 ```
+
+for v2:
+```bash
+source model_run_v2lite_full.sh
+```
+
 
 # Benchmarks
 
