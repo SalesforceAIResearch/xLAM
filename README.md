@@ -263,7 +263,7 @@ nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/tra
 
 for v2:
 ```bash
-source model_run_v2lite_full.sh
+source xLAM/train/scripts/model_run_v2lite_full.sh
 ```
 
 
