@@ -28,6 +28,8 @@
 ---
 
 ## 🎉 News
+- **[09.2024]**: We are excited to announce the release of full xLAM family, our suite of Large Action Models! From the "tiny giant" to industrial powerhouses.  These models have achieved impressive rankings, placing #1 and #6 on the [Berkeley Function-Calling Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html#leaderboard).
+Check our [Hugging Face collection](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) and [Technical Report Paper](https://arxiv.org/abs/2409.03215). 
 - **[07.2024]**: We are excited to announce the release of our two function-calling models: [xLAM-1b-fc-r](https://huggingface.co/Salesforce/xLAM-1b-fc-r) and [xLAM-7b-fc-r](https://huggingface.co/Salesforce/xLAM-7b-fc-r). These models have achieved impressive rankings, placing #3 and #25 on the [Berkeley Function-Calling Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html#leaderboard), outperforming many significantly larger models. Stay tuned for more powerful models coming soon.
 - **[06.2024]** Check our latest work [APIGen](https://apigen-pipeline.github.io/), the best open-sourced models for function calling. Our dataset [xlam-function-calling-60k](https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k) is currently among the Top-3 trending datasets on HuggingFace, standing out in a field of 173,670 datasets as of July 4, 2024. See also the [Twitter by Salesforce CEO](https://x.com/Benioff/status/1808365628551844186), [VentureBeat](https://venturebeat.com/ai/salesforce-proves-less-is-more-xlam-1b-tiny-giant-beats-bigger-ai-models/) and [新智元](https://mp.weixin.qq.com/s/B3gyaGwzlQaUXyI8n7Rguw).
 - **[03.2024]** [xLAM model](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is released! Try it together with [AgentLite benchmark](https://github.com/SalesforceAIResearch/AgentLite/tree/main/benchmark) or other benchmarks, which is comparable to GPT-4!
@@ -412,6 +414,15 @@ We want to acknowledge the work which have made contributions to our paper and t
   title={APIGen: Automated PIpeline for Generating Verifiable and Diverse Function-Calling Datasets},
   author={Liu, Zuxin and Hoang, Thai and Zhang, Jianguo and Zhu, Ming and Lan, Tian and Kokane, Shirley and Tan, Juntao and Yao, Weiran and Liu, Zhiwei and Feng, Yihao and others},
   journal={arXiv preprint arXiv:2406.18518},
+  year={2024}
+}
+```
+
+```bibtex
+@article{zhang2024xlamfamilylargeaction,
+  title={xLAM: A Family of Large Action Models to Empower AI Agent Systems}, 
+  author={Zhang, Jianguo  and Lan, Tian  and Zhu, Ming  and Liu, Zuxin and Hoang, Thai and Kokane, Shirley and Yao, Weiran and Tan, Juntao and Prabhakar, Akshara and Chen, Haolin and Liu, Zhiwei and Feng, Yihao and Awalgaonkar, Tulika and Murthy, Rithesh and Hu, Eric and Chen, Zeyuan and Xu, Ran and Niebles, Juan Carlos and Heinecke, Shelby and Wang, Huan and Savarese, Silvio and Xiong, Caiming},
+  journal={arXiv preprint arXiv:2409.03215}
   year={2024}
 }
 ```
