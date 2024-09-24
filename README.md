@@ -10,6 +10,7 @@
   ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-brightgreen.svg)
   [![License](https://img.shields.io/badge/License-Apache-green.svg)]()
    [![huggingface](https://img.shields.io/badge/%F0%9F%A4%97-Models-yellow)](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4)
+   [![discord](https://img.shields.io/badge/Discord-Chanel-light)](https://discord.gg/tysWwgZyQ2)
  [![GitHub star chart](https://img.shields.io/github/stars/SalesforceAIResearch/xLAM?style=social)](https://star-history.com/#SalesforceAIResearch/xLAM)
 
 </div>
