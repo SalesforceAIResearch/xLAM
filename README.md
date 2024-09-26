@@ -16,7 +16,7 @@
 </div>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2402.15506">Paper</a> |
+  <a href="https://arxiv.org/pdf/2409.03215">Paper</a> |
   <!-- <a href="https://github.com/SalesforceAIResearch/AgentLite/tree/main?tab=readme-ov-file#-key-features">Key Features</a> | -->
   <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#model-instruction">Model Instruction</a> |
   <a href="https://github.com/SalesforceAIResearch/xLAM/tree/main?tab=readme-ov-file#framework">Framework</a> |
