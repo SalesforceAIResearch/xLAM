@@ -79,6 +79,7 @@ For the same number of parameters, the model have been fine-tuned across a wide 
 For example, xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
 This model is compatible with VLLM and FastChat platforms. 
 
+Below is one example on using the older xLAM-v0.1-r model:
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -102,6 +103,8 @@ print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable and important. 
 
 # Deploying and Interacting with xLAM Models
+
+:bangbang: **Check** the [latest examples and tokenizer](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb) on interacting with xLAM models. 
 
 There are two main options for serving the xLAM model as an OpenAI-compatible chat completion API (here we use `Salesforce/xLAM-8x7b-r` and 4xA100 (40GB) setup as an example):
 
@@ -280,7 +283,16 @@ source xLAM/train/scripts/model_run_v2lite_full.sh
 ```
 
 
-# Benchmarks
+# :trophy: Benchmarks
+
+## Berkeley Function-Calling Leaderboard (BFCL)
+
+<p align="left">
+    <br>
+<!--     <img src="./images/framework.png" width="700"/> -->
+    <img src="./images/bfcl_results.jpg" width="800"/>
+    <br>
+<p>
 
 ## [BOLAA](https://github.com/salesforce/BOLAA)
 
