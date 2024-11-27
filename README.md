@@ -56,20 +56,28 @@ across devices during dataset partitioning and model training.
 
 <p align="center">
     <br>
-    <img src="./images/framework.png" width="700"/>
-    <img src="./images/roadmap.png" width="700"/>
+<!--     <img src="./images/framework.png" width="700"/> -->
+    <img src="./images/xlam_release_v1.jpeg" width="700"/>
     <br>
 <p>
 
 # Model Instruction
 
-If you already know [Mixtral](https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1), [xLAM-v0.1](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is a significant upgrade and better at many things. 
+| Model                  | # Total Params | Context Length |Release Date | Category | Download Model  | Download GGUF files |
+|------------------------|----------------|------------|-------------|-------|----------------|----------|
+| xLAM-7b-r           | 7.24B          | 32k            | Sep. 5, 2024|General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-7b-r) | -- |
+| xLAM-8x7b-r           | 46.7B          | 32k           | Sep. 5, 2024|General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-8x7b-r) | -- |
+| xLAM-8x22b-r           | 141B          | 64k           | Sep. 5, 2024|General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-8x22b-r) | -- |
+| xLAM-1b-fc-r           | 1.35B          | 16k           | July 17, 2024 | Function-calling| [🤗 Link](https://huggingface.co/Salesforce/xLAM-1b-fc-r) | [🤗 Link](https://huggingface.co/Salesforce/xLAM-1b-fc-r-gguf) |
+| xLAM-7b-fc-r           | 6.91B          | 4k            | July 17, 2024| Function-calling| [🤗 Link](https://huggingface.co/Salesforce/xLAM-7b-fc-r) | [🤗 Link](https://huggingface.co/Salesforce/xLAM-7b-fc-r-gguf) |
+| xLAM-v0.1-r           | 46.7B          | 32k            | Mar. 18, 2024 |General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-v0.1-r) | -- |
+
+
+If you already know [Mixtral](https://huggingface.co/mistralai/), [xLAM](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) series are a significant upgrade and better at many things including general tasks and function calling. 
 For the same number of parameters, the model have been fine-tuned across a wide range of agent tasks and scenarios, all while preserving the capabilities of the original model.
 
-xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
+For example, xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
 This model is compatible with VLLM and FastChat platforms. 
-
-
 
 
 ```python
