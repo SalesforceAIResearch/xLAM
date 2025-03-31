@@ -29,6 +29,7 @@
 ---
 
 ## 🎉 News
+- **[03-31.2025]**: Major code update for ActionStudio on the way!
 - **[11.2024]**: Add the [latest examples and tokenizer info](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb) on interacting with xLAM models. 
 - **[09.2024]**: Join our [Discord Community](https://discord.gg/tysWwgZyQ2) if you have any feedbacks!
 - **[09.2024]**: Check our xLAM [Technical Report Paper](https://arxiv.org/abs/2409.03215). 
