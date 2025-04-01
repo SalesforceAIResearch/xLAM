@@ -206,69 +206,25 @@ response = llm.completion(messages, tools=tools)
 print(response)
 ```
 
-# Framework
+# [ActionStudio](https://arxiv.org/abs/2503.22673) Framework
 
-## A unified data formatting and streaming loader. 
+<p align="center">
+    <br>
+<!--     <img src="./images/framework.png" width="700"/> -->
+    <img src="./images/actionstudio.jpg" width="900"/>
+    <br>
+<p>
 
-```python
-from fm_datasets import webshop_multi_turn_v2
-from fm_utils.seed_random import init_device_seed
-from fm_utils.interleave_datasets import interleave_data
-
-
-sft_webshop_multi_turn = webshop_multi_turn_v2.SFTWebShopMultiTurnV2(tokenizer, script_args)
-
-seed = init_device_seed(seed=42)
-
-train_dataset, eval_dataset = \
-    interleave_data(
-        data_objects=[sft_webshop_multi_turn],
-        sample_probs=[1.0],
-        return_type="prompt_answer",
-        seq_length=4096,
-        seed=seed)
-```
+## ActionStudio: A Lightweight Framework for Data and Training of Large Action Models
 
 
-## Supervised fine tuning and DPO fine tuning. 
-We have SFT trainer v1 and v2lite, 
-where v1 is more based on `trl` module optimized for LoRA while v2lite is starting from scratch with Accelerator optimized for fully-finetuning.
-They share almost the same interface.
-
-```python
-from xLAM.fm_utils.derived_data_collator import DataCollatorForPromptAnswer
-from xLAM.fm_trainers.sft_foundation_trainer import SFTFoundationTrainer
-from xLAM.train.fm_trainers.sft_foundation_trainer_lite import SFTFoundationTrainerLite, prepare_accelerator
-
-script_args = parser.parse_args_into_dataclasses()[0]
-
-collator = DataCollatorForPromptAnswer(
-    instruction_template=instruction_template_ids,
-    response_template=response_template_ids,
-    tokenizer=tokenizer,
-    mlm=False)
-
-# v2 trainer
-
-accelerator = prepare_accelerator(script_args)
-trainer = SFTFoundationTrainerLite(
-        args=script_args,
-        accelerator=accelerator,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        collator=collator,
-    )
-
-trainer.train()
-```
-
-# Installation
+## Installation
 You can use our configured docker environment `gcr.io/salesforce-research-internal/xlam-2024-02-14`, and one example yaml file is shown at `envs_config`.
 Then, you can `pip install -e . --no-dependencies`
 
 Or, you can directly `pip install -e .`. There is a chance that your configured environment might have some error.
 
-# Train
+## Train
 
 You can refer to the complete example [scripts](https://github.com/SalesforceAIResearch/xLAM/tree/main/xLAM/train/scripts) to learn more details
 
@@ -285,7 +241,7 @@ source xLAM/train/scripts/model_run_v2lite_full.sh
 ```
 
 
-# :trophy: Benchmarks
+# :trophy: Benchmarks (xLAM 1.0 Series)
 
 ## Berkeley Function-Calling Leaderboard (BFCL)
 
