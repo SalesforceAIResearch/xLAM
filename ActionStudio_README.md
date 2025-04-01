@@ -47,6 +47,13 @@ actionstudio/
 
 Most top-level folders include a **README.md** with detailed instructions and explanations.
 
+### Data Conversion
+
+See the [Data Conversion Guide](./actionstudio/src/data_pipeline/README.md). 
+
+### Model Training
+
+See the [Model Training Guide](./actionstudio/src/foundation_modeling/README.md).
 
 ## Licenses
 
