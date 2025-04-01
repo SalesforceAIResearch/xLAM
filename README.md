@@ -29,7 +29,7 @@
 ---
 
 ## 🎉 News
-- **[03-31.2025]**: Major code update for ActionStudio on the way!
+- **[04-01.2025]**: ActionStudio is now open-source! Explore our [paper](https://arxiv.org/abs/2503.22673) and [code](ActionStudio_README.md) for more information.
 - **[11.2024]**: Add the [latest examples and tokenizer info](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb) on interacting with xLAM models. 
 - **[09.2024]**: Join our [Discord Community](https://discord.gg/tysWwgZyQ2) if you have any feedbacks!
 - **[09.2024]**: Check our xLAM [Technical Report Paper](https://arxiv.org/abs/2409.03215). 
@@ -75,7 +75,7 @@ across devices during dataset partitioning and model training.
 | xLAM-v0.1-r           | 46.7B          | 32k            | Mar. 18, 2024 |General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-v0.1-r) | -- |
 
 
-If you already know [Mixtral](https://huggingface.co/mistralai/), [xLAM](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) series are a significant upgrade and better at many things including general tasks and function calling. 
+[xLAM](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) series are significant better at many things including general tasks and function calling. 
 For the same number of parameters, the model have been fine-tuned across a wide range of agent tasks and scenarios, all while preserving the capabilities of the original model.
 
 For example, xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
@@ -217,28 +217,48 @@ print(response)
 
 ## ActionStudio: A Lightweight Framework for Data and Training of Large Action Models
 
+❤️❤️❤️ Please refer [ActionStudio.md](ActionStudio_README.md) for more details. 
 
-## Installation
-You can use our configured docker environment `gcr.io/salesforce-research-internal/xlam-2024-02-14`, and one example yaml file is shown at `envs_config`.
-Then, you can `pip install -e . --no-dependencies`
+## Dependencies
 
-Or, you can directly `pip install -e .`. There is a chance that your configured environment might have some error.
+Install dependencies with:
 
-## Train
-
-You can refer to the complete example [scripts](https://github.com/SalesforceAIResearch/xLAM/tree/main/xLAM/train/scripts) to learn more details
-
-Or you can simply run the bash scripts to have a quick start for our example
-
-for v1: 
 ```bash
-nohup accelerate launch --config_file xLAM/train/scripts/multi_gpu.yaml xLAM/train/scripts/sft_train_model_v1.py --model_name mistralai/Mixtral-8x7B-Instruct-v0.1 --seq_length 4096 --run_name sft_mixtral8X7B_v2_02072024 --output_dir {path} > sft_mixtral8X7B_v2_02072024.nohup 2>&1 &
+conda create --name actionstudio python=3.10
+
+bash requirements.sh
 ```
 
-for v2:
+## Installing ActionStudio
+
+**Development Version** (Latest):
+
+To use the latest code under active development, install ActionStudio in editable mode from the parent actionstudio directory:
+
 ```bash
-source xLAM/train/scripts/model_run_v2lite_full.sh
+pip install -e .
 ```
+
+## ActionStudio Structure
+
+```text
+actionstudio/
+├── datasets/                             # Open-source unified trajectory datasets
+├── examples/                             # Usage examples and configurations
+│   ├── data_configs/                     # YAML configs for data mixtures
+│   ├── deepspeed_configs/                # DeepSpeed training configuration files
+│   └── trainings/                        # Bash scripts for various training methods (**`README.md`**)
+├── src/                                  # Source code
+│   ├── data_conversion/                  # Converting trajectories into training data (**`README.md`**)
+│   └── criticLAM/                        # Critic Large Action Model implementation (**`README.md`**)
+└── foundation_modeling/                  # Core modeling components
+    ├── data_handlers/
+    ├── train/
+    ├── trainers/
+    └── utils/
+```
+
+Most top-level folders include a **README.md** with detailed instructions and explanations.
 
 
 # :trophy: Benchmarks (xLAM 1.0 Series)
