@@ -46,3 +46,8 @@ actionstudio/
 ```
 
 Most top-level folders include a **README.md** with detailed instructions and explanations.
+
+
+## Licenses
+
+The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4.0 License. The code and data provided are intended for research purposes only.
