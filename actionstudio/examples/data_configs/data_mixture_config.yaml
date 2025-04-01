@@ -1,0 +1,19 @@
+invocation_greeting:
+  size: 40748
+  epochs: 1
+
+iqa:
+  size: 44763
+  epochs: 1
+
+toolace:
+  size: 11981
+  epochs: 1
+
+toolalpaca:
+  size: 6846
+  epochs: 1
+
+xlam-fc-60k:
+  size: 60000
+  epochs: 1
