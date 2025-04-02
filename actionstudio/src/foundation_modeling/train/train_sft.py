@@ -67,7 +67,7 @@ class ScriptArguments:
     output_dir: Optional[str] = field(default="./results", metadata={"help": "the output directory"})
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
     data_save_dir: Optional[str] = field(default="actionstudio/data/train/sft", metadata={"help": "the default dataset dir"})
-    data_mix_recipe_yaml_config_path: Optional[str] = field(
+    data_mix_recipe_yaml_config: Optional[str] = field(
         default="",
         metadata={"help": "the default yaml file path for data mixed ratio recipe config"}
     )
@@ -157,11 +157,11 @@ def prepare_data(accelerator, script_args, seed=9120):
         tokenizer.pad_token_id = 0
 
     # load data mix config
-    yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config_path)
+    yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config)
     sample_probs = create_sampled_ratio(yaml_data)
     
     if accelerator.is_main_process:
-        new_path = script_args.data_mix_recipe_yaml_config_path.replace(".json", "") + "_processed.json"
+        new_path = script_args.data_mix_recipe_yaml_config.replace(".json", "") + "_processed.json"
         with open(new_path, "w") as f:
             yaml.dump(yaml_data, f)
 
