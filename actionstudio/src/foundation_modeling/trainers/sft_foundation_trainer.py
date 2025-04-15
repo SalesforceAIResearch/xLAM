@@ -40,6 +40,8 @@ import wandb
 
 import json
 
+from actionstudio.src.foundation_modeling.utils.safetensors import find_shared_tensors
+
 
 class SFTFoundationTrainerLite:
     def __init__(self, args, accelerator, train_dataset, eval_dataset, collator):
@@ -357,11 +359,29 @@ class SFTFoundationTrainerLite:
         if self.accelerator.is_main_process:
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
-
+            print(f"    \nSaving model to ❤️{output_dir}❤️\n")
+            
             if args.use_lora:
+                # OPTIONAL TODO: update this if you have multiple LoRA configs
+                self.model.peft_config["default"].save_pretrained(output_dir)
                 save_file(lora_state_dict, f"{output_dir}/adapter_model.safetensors")
             if save_full:
-                save_file(ds_state_dict, f"{output_dir}/full_model.safetensors")
+                shared_pointers = find_shared_tensors(ds_state_dict)
+                failing = []
+                for names in shared_pointers:
+                    if len(names) > 1:
+                        failing.append(names)
+
+                failing = [curr_e for e in failing for curr_e in e]     # flatten list of set of model weight keys
+
+                if len(failing) > 0: print(f">>>>>>>>>>>>> Detected weights under shared memory situation: {failing}")
+                    # for key in ['model.embed_tokens.weight', 'lm_head.weight']:
+                try:
+                    for key in failing:
+                        ds_state_dict[key] = ds_state_dict[key].clone().contiguous()
+                    save_file(ds_state_dict, f"{output_dir}/full_model.safetensors")
+
+                except: save_file(ds_state_dict, f"{output_dir}/full_model.safetensors")
 
         self.accelerator.wait_for_everyone()
         print(f"    [Finished saving] --- local rank = {self.accelerator.local_process_index}")

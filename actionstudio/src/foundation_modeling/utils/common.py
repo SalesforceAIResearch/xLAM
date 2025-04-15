@@ -1,8 +1,38 @@
-from pathlib import Path
-from dataclasses import asdict, is_dataclass
+import os
 import json
 import yaml
 import jsonlines
+from pathlib import Path
+from dataclasses import asdict, is_dataclass
+from collections import OrderedDict
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
+import torch
+
+
+class OrderedYAMLDumperLoader:
+    """
+    Combines custom YAML Dumper and Loader to handle OrderedDict serialization and deserialization.
+    """
+    class Dumper(yaml.SafeDumper):
+        pass
+
+    class Loader(yaml.SafeLoader):
+        pass
+
+# Properly register representer to avoid !!python/object tags
+OrderedYAMLDumperLoader.Dumper.add_representer(
+    OrderedDict,
+    lambda dumper, data: dumper.represent_dict(data.items())
+)
+
+# Properly register constructor to ensure OrderedDict loading
+OrderedYAMLDumperLoader.Loader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    lambda loader, node: OrderedDict(loader.construct_pairs(node))
+)
+
 
 def get_project_root() -> Path:
     return Path(__file__).absolute().parent.parent
@@ -28,6 +58,7 @@ def bookkeep_dataset_args(datasets, sample_probs, output_path):
     with open(f"{output_path}/dataset_args.json", "w") as outfile:
         json.dump(dataset_dict, outfile)
 
+
 def open_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -48,9 +79,22 @@ def open_jsonl(filepath):
 def load_yaml_file(filepath):
     with open(filepath, 'r') as file:
         try:
-            return yaml.safe_load(file)
+            return yaml.load(file, Loader=OrderedYAMLDumperLoader.Loader)
         except yaml.YAMLError as exc:
             print("Error in loading YAML file:", exc)
+
+
+def save_yaml_file(filepath, data):
+    with open(filepath, 'w') as file:
+        try:
+            # Write the data to a YAML file with manual line spacing
+            with open(filepath, "w") as file:
+                for key, value in data.items():
+                    yaml.dump({key: value}, file, Dumper=OrderedYAMLDumperLoader.Dumper, default_flow_style=False)
+                    file.write("\n")  # Add an empty line between entries
+        except yaml.YAMLError as exc:
+            print("Error in saving YAML file:", exc)
+
 
 def create_sampled_ratio(yaml_data):
     total_data = 0
@@ -66,8 +110,12 @@ def create_sampled_ratio(yaml_data):
         all_sampled_ratios += yaml_data[dataset_name]["sampled_training_ratio"]
     
         sample_probs.append(yaml_data[dataset_name]["sampled_training_ratio"])
-        
-    return sample_probs
+    
+    if round(all_sampled_ratios, 3) != 1.0:
+        raise ValueError(f"Sampled ratios {all_sampled_ratios} do not sum to 1.0 - please check your YAML file.") 
+    
+    return sample_probs, yaml_data, total_data
+
 
 def dict_to_json_print_format(d):
     return json.dumps(d, indent=4)
