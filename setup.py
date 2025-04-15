@@ -9,9 +9,9 @@ import os
 from setuptools import setup, find_packages, find_namespace_packages
 
 
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
-
+# with open("requirements.txt") as f:
+#     requirements = f.read().splitlines()
+requirements = None
 setup(
     name='actionstudio',
     version='v2.0',

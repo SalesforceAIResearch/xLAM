@@ -4,7 +4,7 @@ This directory contains bash scripts for data verification, model training, and 
 
 ## Quick Start
 
-### Data Verification
+### Data Verification (Optional but Highly Recommended)
 Verify training data integrity:
 
 ```bash
@@ -58,7 +58,10 @@ bash sft_lora_nf4_single_pods.sh
 
 #### Checkpoints Merge
 
-Merge model checkpoints:
+To merge `final_checkpoint` into a consolidated folder named `final_merged_checkpoint_torch`, run:
 
 ```bash
 bash postprocessing.sh
+```
+
+**Note:** This merging step is automatically included at the end of each training script. You only need to run it manually if you wish to save a merged checkpoint at a specific epoch or step, or if training was skipped or interrupted before completion.
