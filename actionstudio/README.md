@@ -8,7 +8,7 @@
 
 ### 🔧 Dependencies
 
-Install dependencies with:
+Install dependencies from the root xLAM directory (where setup.py is located) with:
 
 ```bash
 conda create --name actionstudio python=3.10
