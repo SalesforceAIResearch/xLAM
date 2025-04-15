@@ -36,7 +36,7 @@ WANDB_CREDENTIAL_CONFIG="<YOUR_PATH_HERE>"
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ##      model configs
-BASE_MODEL_NAME="<YOUR_PATH_HERE>"
+BASE_MODEL_NAME="<YOUR_PATH_HERE>" # e.g., "/export/home/qwen2.5_32b_instruct"
 PRECISION="bf16"
 SEQ_LEN=4096
 FC_MODE=True                                                                        # Function call mode
@@ -69,9 +69,6 @@ OUTPUT_MODEL_ROOT="<YOUR_PATH_HERE>/${WANDB_RUN_NAME}"
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ##      training configs
-NUM_TRAINING_STEPS=40
-MODEL_SAVE_EVERY_STEPS=$((NUM_TRAINING_STEPS))                                      # Optional: Save model every x steps
-
 BATCH_SIZE=8
 GRADIENT_ACCUM_STEPS=1
 LEARNING_RATE=1e-6
@@ -102,8 +99,6 @@ if [ "$USE_LORA" = True ]; then
         --gradient_accumulation_steps $GRADIENT_ACCUM_STEPS \
         --per_device_train_batch_size $BATCH_SIZE \
         --shuffle_buffer_size $SHUFFLE_BUFFER_SIZE \
-        --max_steps $NUM_TRAINING_STEPS \
-        --save_steps $MODEL_SAVE_EVERY_STEPS \
         --output_dir "${OUTPUT_MODEL_ROOT}"
 else
     torchrun ${DISTRIBUTED_ARGS} "${SRC_ROOT}/src/foundation_modeling/train/train_sft.py" \
@@ -123,8 +118,6 @@ else
         --gradient_accumulation_steps $GRADIENT_ACCUM_STEPS \
         --per_device_train_batch_size $BATCH_SIZE \
         --shuffle_buffer_size $SHUFFLE_BUFFER_SIZE \
-        --max_steps $NUM_TRAINING_STEPS \
-        --save_steps $MODEL_SAVE_EVERY_STEPS \
         --output_dir "${OUTPUT_MODEL_ROOT}"
 fi
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

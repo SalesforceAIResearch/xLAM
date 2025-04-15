@@ -27,7 +27,7 @@ import json
 import torch
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model_name_or_path", type=str)
+parser.add_argument("--model_name_or_path", type=str) # This is the raw base model path
 parser.add_argument("--load_from_state_dict_path", type=str, required=False, default=None)
 parser.add_argument("--custom_path", type=str, default="")
 parser.add_argument("--output_root", type=str)
@@ -117,7 +117,7 @@ def main(args) -> None:
     merged_model.save_pretrained(output_path, safe_serialization=True)
     tokenizer.save_pretrained(output_path)
 
-    print("Done")
+    print("❤️Done❤️")
     
 
 if __name__ == "__main__":

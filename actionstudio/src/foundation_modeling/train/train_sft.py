@@ -16,7 +16,7 @@ from actionstudio.src.foundation_modeling.data_handlers.derived_data_collator im
 from actionstudio.src.foundation_modeling.data_handlers.interleave_datasets import interleave_data
 
 from actionstudio.src.foundation_modeling.utils.seed_random import init_device_seed
-from actionstudio.src.foundation_modeling.utils.common import load_yaml_file, create_sampled_ratio
+from actionstudio.src.foundation_modeling.utils.common import load_yaml_file, create_sampled_ratio, save_yaml_file
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -56,11 +56,11 @@ class ScriptArguments:
     num_warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
     weight_decay: Optional[float] = field(default=0.05, metadata={"help": "the weight decay"})
     optimizer_type: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
-    max_steps: Optional[int] = field(default=8000, metadata={"help": "the maximum number of sgd steps"})
+    max_steps: Optional[int] = field(default=None, metadata={"help": "the maximum number of sgd steps, use None to allow auto step calculation"})
     logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency"})
     per_device_train_batch_size: Optional[int] = field(default=3, metadata={"help": "the per device train batch size"})
     per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "the per device eval batch size"})
-    save_steps: Optional[int] = field(default=1000, metadata={"help": "the saving frequency"})
+    save_steps: Optional[int] = field(default=None, metadata={"help": "the checkoint saving frequency (None to save every max_steps)"})
     gradient_accumulation_steps: Optional[int] = field(default=2, metadata={"help": "the gradient accumulation steps"})
 
     # data
@@ -81,7 +81,7 @@ class ScriptArguments:
     num_workers: Optional[int] = field(default=4, metadata={"help": "the number of workers"})
     streaming: Optional[bool] = field(default=True, metadata={"help": "whether to stream the dataset"})
     shuffle_buffer_size: Optional[int] = field(default=500000, metadata={"help": "the shuffle buffer size"})
-    debug_mode: Optional[bool] = field(default=True, metadata={"help": "turning on debug mode or not"})
+    debug_mode: Optional[bool] = field(default=False, metadata={"help": "turning on debug mode or not"})
 
 
 def prepare_accelerator(script_args):
@@ -152,18 +152,37 @@ def prepare_data(accelerator, script_args, seed=9120):
     if "llama" in script_args.model_name.lower():
         tokenizer.pad_token = "<|finetune_right_pad_id|>"
         tokenizer.pad_token_id = 128004
+    elif "pad_token" in tokenizer.special_tokens_map:
+        tokenizer.pad_token = tokenizer.special_tokens_map["pad_token"]
+        tokenizer.pad_token_id = tokenizer.pad_token_id
     else:
         tokenizer.pad_token = "[PAD]"
         tokenizer.pad_token_id = 0
 
     # load data mix config
     yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config)
-    sample_probs = create_sampled_ratio(yaml_data)
+    sample_probs, yaml_data, num_total_data = create_sampled_ratio(yaml_data)
+    
+    # Calculate the max training steps. Note the num_optimization_updates = max_steps / gradient_accumulation_steps
+    calculated_steps = num_total_data // (script_args.per_device_train_batch_size * accelerator.num_processes)
+    
+    # If max_steps is provided, validate it matches calculated value
+    if accelerator.is_main_process and not script_args.debug_mode and script_args.max_steps is not None and script_args.max_steps != calculated_steps:
+        raise ValueError(
+            f"❤️ Provided max_steps ({script_args.max_steps}) doesn't match calculated steps ({calculated_steps}) ❤️. "
+            f"Please check your data configuration and batch settings!"
+        )
+    
+    # Set max_steps to calculated value if not explicitly provided
+    if script_args.max_steps is None:
+        script_args.max_steps = calculated_steps
+    # By default, save the model every half of the max_steps
+    if script_args.save_steps is None:
+        script_args.save_steps = script_args.max_steps // 2
     
     if accelerator.is_main_process:
-        new_path = script_args.data_mix_recipe_yaml_config.replace(".json", "") + "_processed.json"
-        with open(new_path, "w") as f:
-            yaml.dump(yaml_data, f)
+        new_path = script_args.data_mix_recipe_yaml_config.replace(".yaml", "") + "--processed.yaml"
+        save_yaml_file(new_path, yaml_data)
 
     accelerator.wait_for_everyone()
      
@@ -181,6 +200,7 @@ def prepare_data(accelerator, script_args, seed=9120):
     # load train & eval datasets
     train_dataset, eval_dataset = \
         interleave_data(
+            accelerator=accelerator,
             data_objects=data,
             sample_probs=sample_probs,
             return_type="prompt_answer",
@@ -191,7 +211,7 @@ def prepare_data(accelerator, script_args, seed=9120):
 
     return tokenizer, train_dataset, eval_dataset, collator
 
-def main(script_args) -> None:
+def main(script_args):
     # spin up accelerator
     accelerator = prepare_accelerator(script_args)
         
