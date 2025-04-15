@@ -29,7 +29,8 @@
 ---
 
 ## 🎉 News
-- **[04-01.2025]**: ActionStudio is now open-source! Explore our [paper](https://arxiv.org/abs/2503.22673) and [code](ActionStudio_README.md) for more information.
+- **[04-15.2025]**: 🚀 ActionStudio is now open-source! Checkout our [paper](https://arxiv.org/abs/2503.22673) and [code & data](ActionStudio_README.md) for full details.
+- **[04-15.2025]**: 📢 APIGen-MT is now open-source! Learn more in our [paper]([https://arxiv.org/abs/2503.22673](https://arxiv.org/pdf/2504.03601)).
 - **[11.2024]**: Add the [latest examples and tokenizer info](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb) on interacting with xLAM models. 
 - **[09.2024]**: Join our [Discord Community](https://discord.gg/tysWwgZyQ2) if you have any feedbacks!
 - **[09.2024]**: Check our xLAM [Technical Report Paper](https://arxiv.org/abs/2409.03215). 
@@ -43,14 +44,13 @@ Check our [Hugging Face collection](https://huggingface.co/collections/Salesforc
 
 This repo is for research purposes only.
 
+---
 
 Autonomous agents powered by large language models (LLMs) have garnered significant research attention. However, fully harnessing the potential of LLMs for
 agent-based tasks presents inherent challenges due to the heterogeneous nature of
 diverse data sources featuring multi-turn trajectories. 
 
-This repo introduces xLAM that aggregates agent trajectories from distinct environments, spanning a wide
-array of scenarios. It standardizes and unifies these trajectories into
-a consistent format, streamlining the creation of a generic data loader optimized
+This repo introduces xLAM that aggregates agent trajectories from distinct environments, spanning a wide array of scenarios. It standardizes and unifies these trajectories into a consistent format, streamlining the creation of a generic data loader optimized
 for agent training. Leveraging the data unification, our training pipeline maintains
 equilibrium across different data sources and preserves independent randomness
 across devices during dataset partitioning and model training. 
@@ -62,11 +62,18 @@ across devices during dataset partitioning and model training.
     <img src="./images/xlam_release_v1.jpeg" width="700"/>
     <br>
 <p>
-
+  
+---
+  
 # Model Instruction
 
 | Model                  | # Total Params | Context Length |Release Date | Category | Download Model  | Download GGUF files |
 |------------------------|----------------|------------|-------------|-------|----------------|----------|
+| Salesforce/Llama-xLAM-2-70b-fc-r | 70B            | 128k            | Mar. 26, 2025 | Multi-turn Conversation, Function-calling   | [🤗 Link](https://huggingface.co/Salesforce/Llama-xLAM-2-70b-fc-r)         |      NA               |
+| Salesforce/Llama-xLAM-2-8b-fc-r      | 8B             | 128k            | Mar. 26, 2025 | Multi-turn Conversation, Function-calling     | [🤗 Link](https://huggingface.co/Salesforce/Llama-xLAM-2-8b-fc-r)              |   [🤗 Link](https://huggingface.co/Salesforce/Llama-xLAM-2-8b-fc-r-gguf)    |
+| Salesforce/xLAM-2-32b-fc-r     | 32B            | 32k (max 128k)*            | Mar. 26, 2025 |  Multi-turn Conversation, Function-calling   | [🤗 Link](https://huggingface.co/Salesforce/xLAM-2-32b-fc-r)             |      NA               |
+| Salesforce/xLAM-2-3b-fc-r      | 3B             | 32k (max 128k)*            | Mar. 26, 2025 |  Multi-turn Conversation, Function-calling    | [🤗 Link](https://huggingface.co/Salesforce/xLAM-2-3b-fc-r)              |      [🤗 Link](https://huggingface.co/Salesforce/xLAM-2-3b-fc-r-gguf)               |
+| Salesforce/xLAM-2-1b-fc-r      | 1B             | 32k (max 128k)*            | Mar. 26, 2025 |  Multi-turn Conversation, Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-2-1b-fc-r)              |      [🤗 Link](https://huggingface.co/Salesforce/xLAM-2-1b-fc-r-gguf)               |
 | xLAM-7b-r           | 7.24B          | 32k            | Sep. 5, 2024|General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-7b-r) | -- |
 | xLAM-8x7b-r           | 46.7B          | 32k           | Sep. 5, 2024|General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-8x7b-r) | -- |
 | xLAM-8x22b-r           | 141B          | 64k           | Sep. 5, 2024|General,  Function-calling | [🤗 Link](https://huggingface.co/Salesforce/xLAM-8x22b-r) | -- |
@@ -78,39 +85,143 @@ across devices during dataset partitioning and model training.
 [xLAM](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) series are significant better at many things including general tasks and function calling. 
 For the same number of parameters, the model have been fine-tuned across a wide range of agent tasks and scenarios, all while preserving the capabilities of the original model.
 
-For example, xLAM-v0.1-r represents the version 0.1 of the Large Action Model series, with the "-r" indicating it's tagged for research. 
-This model is compatible with VLLM and FastChat platforms. 
+### 📦 Model Naming Conventions
+- `xLAM-7b-r`: A general-purpose v1.0 or v2.0 release of the **Large Action Model**, fine-tuned for broad agentic capabilities. The `-r` suffix indicates it is a **research** release.
+- `xLAM-7b-fc-r`: A specialized variant where `-fc` denotes fine-tuning for **function calling** tasks, also marked for **research** use.
+- ✅ All models are fully compatible with VLLM, FastChat, and Transformers-based inference frameworks.
 
-Below is one example on using the older xLAM-v0.1-r model:
+---
+Below is one example on how to use the latest models:
 
 ```python
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained("Salesforce/xLAM-v0.1-r")
-model = AutoModelForCausalLM.from_pretrained("Salesforce/xLAM-v0.1-r", device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained("Salesforce/Llama-xLAM-2-3b-fc-r")
+model = AutoModelForCausalLM.from_pretrained("Salesforce/Llama-xLAM-2-3b-fc-r", torch_dtype=torch.bfloat16, device_map="auto")
 
+# Example conversation with a tool call
 messages = [
-    {"role": "user", "content": "What is your favourite condiment?"},
-    {"role": "assistant", "content": "Well, I'm quite partial to a good squeeze of fresh lemon juice. It adds just the right amount of zesty flavour to whatever I'm cooking up in the kitchen!"},
-    {"role": "user", "content": "Do you have mayonnaise recipes?"}
+    {"role": "user", "content": "Hi, how are you?"},
+    {"role": "assistant", "content": "Thanks. I am doing well. How can I help you?"},
+    {"role": "user", "content": "What's the weather like in London?"},
 ]
 
-inputs = tokenizer.apply_chat_template(messages, return_tensors="pt").to("cuda")
+tools = [
+    {
+        "name": "get_weather",
+        "description": "Get the current weather for a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string", "description": "The city and state, e.g. San Francisco, CA"},
+                "unit": {"type": "string", "enum": ["celsius", "fahrenheit"], "description": "The unit of temperature to return"}
+            },
+            "required": ["location"]
+        }
+    }
+]
 
-outputs = model.generate(inputs, max_new_tokens=512)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+print("====== prompt after applying chat template ======")
+print(tokenizer.apply_chat_template(messages, tools=tools, add_generation_prompt=True, tokenize=False))
+
+inputs = tokenizer.apply_chat_template(messages, tools=tools, add_generation_prompt=True, return_dict=True, return_tensors="pt")
+input_ids_len = inputs["input_ids"].shape[-1] # Get the length of the input tokens
+inputs = {k: v.to(model.device) for k, v in inputs.items()}
+print("====== model response ======")
+outputs = model.generate(**inputs, max_new_tokens=256)
+generated_tokens = outputs[:, input_ids_len:] # Slice the output to get only the newly generated tokens
+print(tokenizer.decode(generated_tokens[0], skip_special_tokens=True))
 ```
 
 **Note:** You may need to tune the Temperature setting  for different applications. Typically, a lower Temperature is helpful for tasks that require deterministic outcomes. 
 Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable and important. 
 
+
+---
+# 🧠 ActionStudio: A Lightweight Framework for Agentic Data and Training of Large Action Models
+
+<p align="center">
+    <br>
+<!--     <img src="./images/framework.png" width="700"/> -->
+    <img src="./images/actionstudio.jpg" width="900"/>
+    <br>
+<p>
+
+
+❤️ Please refer [ActionStudio.md](ActionStudio_README.md) for more details. 
+
+
+## 📦  Installation
+
+### 🔧 Dependencies
+
+Install dependencies from the root `xLAM` directory (where `setup.py` is located) with:
+
+```bash
+conda create --name actionstudio python=3.10
+
+bash requirements.sh
+```
+
+### 🚀 Installing ActionStudio
+
+**Development Version** (Latest):
+
+To use the latest code under active development, install ActionStudio in **editable mode** from the root `xLAM` directory (where `setup.py` is located):
+
+```bash
+pip install -e .
+```
+
+## 🗂️ Structure
+
+```text
+actionstudio/
+├── datasets/                             # Open-source unified trajectory datasets
+├── examples/                             # Usage examples and configurations
+│   ├── data_configs/                     # YAML configs for data mixtures
+│   ├── deepspeed_configs/                # DeepSpeed training configuration files
+│   └── trainings/                        # Bash scripts for various training methods (**`README.md`**)
+├── src/                                  # Source code
+│   ├── data_conversion/                  # Converting trajectories into training data (**`README.md`**)
+│   └── criticLAM/                        # Critic Large Action Model implementation (**`README.md`**)
+└── foundation_modeling/                  # Core modeling components
+    ├── data_handlers/
+    ├── train/
+    ├── trainers/
+    └── utils/
+```
+
+🔍 Most top-level folders include a **README.md** with detailed instructions and explanations.
+
+## 📜 Licenses
+
+The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4.0 License. The data provided are intended for research purposes only.
+
+## 🛠️ Code Updates History
+
+**April 14, 2025**
+- Updated dependency versions to support the latest models and techniques
+- Added auto calculation and assignment of training steps
+- Enabled automatic checkpoint merging at the end of training. 
+  > 📄 See [actionstudio/examples/trainings/README.md](actionstudio/examples/trainings/README.md) for training examples and usage
+- Improved documentation and inline code comments
+
+---
 # Deploying and Interacting with xLAM Models
 
-:bangbang: **Check** the [latest examples and tokenizer info](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb) on interacting with xLAM models. 
+> ⚠️ **Note**: For working with **xLAM v1.0** models, refer to the  [example notebook and tokenizer information](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb).
 
-There are two main options for serving the xLAM model as an OpenAI-compatible chat completion API (here we use `Salesforce/xLAM-8x7b-r` and 4xA100 (40GB) setup as an example):
+**xLAM v2.0** models build upon the v1.0 design with improved structure and follow standard chat formatting, making them directly compatible with popular inference frameworks such as vLLM, Transformers, and more — no special setup required. 
+> 🔍 That said, we still recommend reviewing the above notebook for a better understanding of the chat formatting logic and tokenizer behaviors.
 
-## Option 1: Using vLLM (Recommended)
+## 💬 Serving xLAM as an OpenAI-Compatible Chat API
+You can deploy xLAM models as an OpenAI-compatible chat completion API using one of the following two methods.
+
+> 📌 *The example below uses `Salesforce/xLAM-8x7b-r` on a 4×A100 (40GB) setup.*
+
+### Option 1: Using vLLM (Recommended)
 
 vLLM offers efficient serving with lower latency. To serve the model with vLLM:
 
@@ -118,7 +229,7 @@ vLLM offers efficient serving with lower latency. To serve the model with vLLM:
 vllm serve Salesforce/xLAM-8x7b-r --host 0.0.0.0 --port 8000 --tensor-parallel-size 4
 ```
 
-## Option 2: Using FastChat
+### Option 2: Using FastChat
 
 FastChat provides a more feature-rich serving setup. To serve with FastChat:
 
@@ -144,7 +255,7 @@ python3 -m fastchat.serve.vllm_worker \
        --limit-worker-concurrency 64
 ```
 
-## Using the Chat Completion API
+## Using the Chat Completion API for xLAM 1.0 Series
 
 Once the model is served, you can use the following xLAM client to interact with it for function calling or other applications:
 
@@ -205,63 +316,35 @@ tools = [
 response = llm.completion(messages, tools=tools)
 print(response)
 ```
+---
 
-# [ActionStudio](https://arxiv.org/abs/2503.22673) Framework
+# :trophy: Benchmarks (xLAM-2-fc Series)
+
+## Berkeley Function-Calling Leaderboard (BFCL v3)
+<p align="left">
+<img width="70%" alt="BFCL Results" src="https://github.com/apigen-mt/apigen-mt.github.io/blob/main/img/bfcl-result.png?raw=true">
+<br>
+<small><i>Performance comparison of different models on BFCL leaderboard. The rank is based on the overall accuracy, which is a weighted average of different evaluation categories. "FC" stands for function-calling mode in contrast to using a customized "prompt" to extract the function calls.</i></small>
+</p>
+
+## τ-bench Benchmark
+
+<p align="left">
+<img width="70%" alt="Tau-bench Results" src="https://github.com/apigen-mt/apigen-mt.github.io/blob/main/img/taubench-result.png?raw=true">
+<br>
+<small><i>Success Rate (pass@1) on τ-bench benchmark averaged across at least 5 trials. Our xLAM-2-70b-fc-r model achieves an overall success rate of 56.2% on τ-bench, significantly outperforming the base Llama 3.1 70B Instruct model (38.2%) and other open-source models like DeepSeek v3 (40.6%). Notably, our best model even outperforms proprietary models such as GPT-4o (52.9%) and approaches the performance of more recent models like Claude 3.5 Sonnet (new) (60.1%).</i></small>
+</p>
 
 <p align="center">
-    <br>
-<!--     <img src="./images/framework.png" width="700"/> -->
-    <img src="./images/actionstudio.jpg" width="900"/>
-    <br>
-<p>
+<img width="70%" alt="Pass^k curves" src="https://github.com/apigen-mt/apigen-mt.github.io/blob/main/img/pass_k_curves_retail_airline.png?raw=true">
+<br>
+<small><i>Pass^k curves measuring the probability that all 5 independent trials succeed for a given task, averaged across all tasks for τ-retail (left) and τ-airline (right) domains. Higher values indicate better consistency of the models.</i></small>
+</p>
 
-## ActionStudio: A Lightweight Framework for Data and Training of Large Action Models
-
-❤️❤️❤️ Please refer [ActionStudio.md](ActionStudio_README.md) for more details. 
-
-## Dependencies
-
-Install dependencies with:
-
-```bash
-conda create --name actionstudio python=3.10
-
-bash requirements.sh
-```
-
-## Installing ActionStudio
-
-**Development Version** (Latest):
-
-To use the latest code under active development, install ActionStudio in editable mode from the parent actionstudio directory:
-
-```bash
-pip install -e .
-```
-
-## ActionStudio Structure
-
-```text
-actionstudio/
-├── datasets/                             # Open-source unified trajectory datasets
-├── examples/                             # Usage examples and configurations
-│   ├── data_configs/                     # YAML configs for data mixtures
-│   ├── deepspeed_configs/                # DeepSpeed training configuration files
-│   └── trainings/                        # Bash scripts for various training methods (**`README.md`**)
-├── src/                                  # Source code
-│   ├── data_conversion/                  # Converting trajectories into training data (**`README.md`**)
-│   └── criticLAM/                        # Critic Large Action Model implementation (**`README.md`**)
-└── foundation_modeling/                  # Core modeling components
-    ├── data_handlers/
-    ├── train/
-    ├── trainers/
-    └── utils/
-```
-
-Most top-level folders include a **README.md** with detailed instructions and explanations.
-
+---
 
 # :trophy: Benchmarks (xLAM 1.0 Series)
+
 
 ## Berkeley Function-Calling Leaderboard (BFCL)
 
@@ -277,7 +360,7 @@ Most top-level folders include a **README.md** with detailed instructions and ex
 ### Webshop
 
 
-<div class="datagrid" style="width:700px;">
+<div class="datagrid" style="width:750px;">
 <table>
 <!-- <thead><tr><th></th><th colspan="6"></th></tr></thead> -->
 <thead><tr><th>LLM Name</th><th>ZS</th><th>ZST</th><th>ReaAct</th><th>PlanAct</th><th>PlanReAct</th><th>BOLAA</th></tr></thead>
@@ -294,7 +377,7 @@ Most top-level folders include a **README.md** with detailed instructions and ex
 
 ### HotpotQA
 
-<div class="datagrid" style="width:700px;">
+<div class="datagrid" style="width:750px;">
 <table>
 <!-- <thead><tr><th></th><th colspan="6"></th></tr></thead> -->
 <thead><tr><th>LLM Name</th><th>ZS</th><th>ZST</th><th>ReaAct</th><th>PlanAct</th><th>PlanReAct</th></thead>
@@ -355,7 +438,7 @@ Most top-level folders include a **README.md** with detailed instructions and ex
 ## [MINT-BENCH](https://github.com/xingyaoww/mint-bench)
 
 
-<div class="datagrid" style="width:780px;">
+<div class="datagrid" style="width:700px;">
 <table>
 <!-- <thead><tr><th></th><th colspan="2">Easy</th><th colspan="2">Medium</th><th colspan="2">Hard</th></tr></thead> -->
 <thead><tr><th>LLM Name</th><th>1-step</th><th>2-step</th><th>3-step</th><th>4-step</th><th>5-step</th></tr></thead>
@@ -375,7 +458,7 @@ Most top-level folders include a **README.md** with detailed instructions and ex
 
 ## [Tool-Query](https://github.com/hkust-nlp/AgentBoard)
 
-<div class="datagrid" style="width:780px;">
+<div class="datagrid" style="width:700px;">
 <table>
 <!-- <thead><tr><th></th><th colspan="2">Easy</th><th colspan="2">Medium</th><th colspan="2">Hard</th></tr></thead> -->
 <thead><tr><th>LLM Name</th><th>Success Rate</th><th>Progress Rate</th></tr></thead>
@@ -393,13 +476,43 @@ Most top-level folders include a **README.md** with detailed instructions and ex
 </tbody>
 </table>
 
+---
 # Licenses
 
 This code is licensed under Apache 2.0.  For models based on the [deepseek model](https://huggingface.co/collections/deepseek-ai/deepseek-coder-65f295d7d8a0a29fe39b4ec4), which require you to follow the use based restrictions in the [linked deepseek license](https://github.com/deepseek-ai/deepseek-coder/blob/main/LICENSE-MODEL). This is a research only project.
 
+---
+
 # Acknowledgement
 
 We want to acknowledge the work which have made contributions to our paper and the agent research community! If you find our work useful, please consider to cite
+
+```bibtex
+@article{zhang2024xlamfamilylargeaction,
+  title={xLAM: A Family of Large Action Models to Empower AI Agent Systems}, 
+  author={Zhang, Jianguo  and Lan, Tian  and Zhu, Ming  and Liu, Zuxin and Hoang, Thai and Kokane, Shirley and Yao, Weiran and Tan, Juntao and Prabhakar, Akshara and Chen, Haolin and Liu, Zhiwei and Feng, Yihao and Awalgaonkar, Tulika and Murthy, Rithesh and Hu, Eric and Chen, Zeyuan and Xu, Ran and Niebles, Juan Carlos and Heinecke, Shelby and Wang, Huan and Savarese, Silvio and Xiong, Caiming},
+  journal={arXiv preprint arXiv:2409.03215}
+  year={2024}
+}
+```
+
+```bibtex
+@article{zhang2025actionstudio,
+  title={ActionStudio: A Lightweight Framework for Data and Training of Action Models},
+  author={Zhang, Jianguo and Hoang, Thai and Zhu, Ming and Liu, Zuxin and Wang, Shiyu and Awalgaonkar, Tulika and Prabhakar, Akshara and Chen, Haolin and Yao, Weiran and Liu, Zhiwei and others},
+  journal={arXiv preprint arXiv:2503.22673},
+  year={2025}
+}
+```
+
+```bibtex
+@article{prabhakar2025apigen,
+  title={APIGen-MT: Agentic PIpeline for Multi-Turn Data Generation via Simulated Agent-Human Interplay},
+  author={Prabhakar, Akshara and Liu, Zuxin and Zhu, Ming and Zhang, Jianguo and Awalgaonkar, Tulika and Wang, Shiyu and Liu, Zhiwei and Chen, Haolin and Hoang, Thai and others},
+  journal={arXiv preprint arXiv:2504.03601},
+  year={2025}
+}
+```
 
 ```bibtex
 @article{zhang2024agentohana,
@@ -417,13 +530,3 @@ We want to acknowledge the work which have made contributions to our paper and t
   journal={arXiv preprint arXiv:2406.18518},
   year={2024}
 }
-```
-
-```bibtex
-@article{zhang2024xlamfamilylargeaction,
-  title={xLAM: A Family of Large Action Models to Empower AI Agent Systems}, 
-  author={Zhang, Jianguo  and Lan, Tian  and Zhu, Ming  and Liu, Zuxin and Hoang, Thai and Kokane, Shirley and Yao, Weiran and Tan, Juntao and Prabhakar, Akshara and Chen, Haolin and Liu, Zhiwei and Feng, Yihao and Awalgaonkar, Tulika and Murthy, Rithesh and Hu, Eric and Chen, Zeyuan and Xu, Ran and Niebles, Juan Carlos and Heinecke, Shelby and Wang, Huan and Savarese, Silvio and Xiong, Caiming},
-  journal={arXiv preprint arXiv:2409.03215}
-  year={2024}
-}
-```
