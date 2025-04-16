@@ -42,7 +42,8 @@ Check our [Hugging Face collection](https://huggingface.co/collections/Salesforc
 - **[02.2024]** Initial Release of AgentOhana and xLAM [paper](https://arxiv.org/abs/2402.15506)!
 
 
-This repo is for research purposes only.
+**Note**: This repo is for research purposes only. Any data related to xLAM is partially released to support the advancement of the agent research community and is not intended to fully reproduce the original results. 
+
 
 ---
 
@@ -480,6 +481,7 @@ print(response)
 # Licenses
 
 This code is licensed under Apache 2.0.  For models based on the [deepseek model](https://huggingface.co/collections/deepseek-ai/deepseek-coder-65f295d7d8a0a29fe39b4ec4), which require you to follow the use based restrictions in the [linked deepseek license](https://github.com/deepseek-ai/deepseek-coder/blob/main/LICENSE-MODEL). This is a research only project.
+
 
 ---
 
