@@ -141,6 +141,15 @@ Additionally, for tasks demanding adherence to specific formats or function call
 
 
 ---
+# 🧠 APIGen-MT: Agentic PIpeline for Multi-Turn Data Generation via Simulated Agent-Human Interplay
+
+<p align="center">
+<img width="780" alt="image" src="https://github.com/user-attachments/assets/8a3719b9-7eac-4b00-a9e3-4c53dc745c27" />
+<img width="780" alt="image" src="https://github.com/user-attachments/assets/0b10ed70-7f9a-422e-bf1f-a54ff4230857" />
+<p>
+
+---
+
 # 🧠 ActionStudio: A Lightweight Framework for Agentic Data and Training of Large Action Models
 
 <p align="center">
@@ -210,14 +219,7 @@ The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4
   > 📄 See [actionstudio/examples/trainings/README.md](actionstudio/examples/trainings/README.md) for training examples and usage
 - Improved documentation and inline code comments
 
----
-# 🧠 APIGen-MT: Agentic PIpeline for Multi-Turn Data Generation via Simulated Agent-Human Interplay
 
-<p align="center">
-<img width="780" alt="image" src="https://github.com/user-attachments/assets/8a3719b9-7eac-4b00-a9e3-4c53dc745c27" />
-<img width="780" alt="image" src="https://github.com/user-attachments/assets/0b10ed70-7f9a-422e-bf1f-a54ff4230857" />
-<p>
-  
 ---
 # Deploying and Interacting with xLAM Models
 
