@@ -1,6 +1,6 @@
 # 🧠 ActionStudio: A Lightweight Framework for Agentic Data and Training of Large Action Models
 
-**Note**: The data and code provided here are intended **solely for research purposes** and should **not be used commercially**.
+**Note:**: This data and code are provided **solely for research purposes only** and **should not be used for any commercial applications**. The data is **partially released to support the advancement of the agent research community** and is **not intended to fully reproduce the original results**. 
 
 ---
 
