@@ -1,6 +1,8 @@
 # 🧠 ActionStudio: A Lightweight Framework for Agentic Data and Training of Large Action Models
 
-**Note:**: This data and code are provided **solely for research purposes only** and **should not be used for any commercial applications**. The data is **partially released to support the advancement of the agent research community** and is **not intended to fully reproduce the original results**. 
+---
+> **Note**: This repository is provided for **research purposes only**.  
+> Any data related to xLAM is **partially released due to internal regulations** to support the advancement of the agent research community.
 
 ---
 
