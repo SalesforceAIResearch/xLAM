@@ -29,8 +29,8 @@
 ---
 
 ## 🎉 News
-- **[04-15.2025]**: 🚀🚀🚀 ActionStudio is now open-source! Checkout our [paper](https://arxiv.org/abs/2503.22673) and [code & data](ActionStudio_README.md) for full details.
-- **[04-15.2025]**: 📢📢📢 APIGen-MT is now open-source! Learn more in our [paper](https://arxiv.org/pdf/2504.03601).
+- **[04-15.2025]**: 🚀🚀🚀 ActionStudio is now open-source! Checkout our [paper](https://arxiv.org/abs/2503.22673) and [code](ActionStudio_README.md) for full details.
+- **[04-15.2025]**: 📢📢📢 APIGen-MT is now open-source! Learn more in our [paper](https://arxiv.org/pdf/2504.03601) and [Project Website](https://apigen-mt.github.io/)!
 - **[11.2024]**: Add the [latest examples and tokenizer info](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb) on interacting with xLAM models. 
 - **[09.2024]**: Join our [Discord Community](https://discord.gg/tysWwgZyQ2) if you have any feedbacks!
 - **[09.2024]**: Check our xLAM [Technical Report Paper](https://arxiv.org/abs/2409.03215). 
