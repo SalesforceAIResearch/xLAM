@@ -41,9 +41,9 @@ Check our [Hugging Face collection](https://huggingface.co/collections/Salesforc
 - **[03.2024]** [xLAM model](https://huggingface.co/collections/Salesforce/xlam-models-65f00e2a0a63bbcd1c2dade4) is released! Try it together with [AgentLite benchmark](https://github.com/SalesforceAIResearch/AgentLite/tree/main/benchmark) or other benchmarks, which is comparable to GPT-4!
 - **[02.2024]** Initial Release of AgentOhana and xLAM [paper](https://arxiv.org/abs/2402.15506)!
 
-
-**Note**: This repo is for research purposes only. Any data related to xLAM is partially released to support the advancement of the agent research community and is not intended to fully reproduce the original results. 
-
+---
+> **Note**: This repository is provided for **research purposes only**.  
+> Any data related to xLAM is **partially released due to internal regulations** to support the advancement of the agent research community.
 
 ---
 
@@ -59,7 +59,7 @@ across devices during dataset partitioning and model training.
 
 <p align="center">
     <br>
-<!--     <img src="./images/framework.png" width="700"/> -->
+<!--     <img src="./images/framework.png" width="780"/> -->
     <img src="./images/xlam_release_v1.jpeg" width="700"/>
     <br>
 <p>
@@ -209,6 +209,14 @@ The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4
   > 📄 See [actionstudio/examples/trainings/README.md](actionstudio/examples/trainings/README.md) for training examples and usage
 - Improved documentation and inline code comments
 
+---
+# 🧠 APIGen-MT: Agentic PIpeline for Multi-Turn Data Generation via Simulated Agent-Human Interplay
+
+<p align="center">
+<img width="780" alt="image" src="https://github.com/user-attachments/assets/8a3719b9-7eac-4b00-a9e3-4c53dc745c27" />
+<img width="780" alt="image" src="https://github.com/user-attachments/assets/0b10ed70-7f9a-422e-bf1f-a54ff4230857" />
+<p>
+  
 ---
 # Deploying and Interacting with xLAM Models
 
