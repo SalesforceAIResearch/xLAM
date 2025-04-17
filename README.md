@@ -93,6 +93,9 @@ For the same number of parameters, the model have been fine-tuned across a wide 
 - ✅ All models are fully compatible with VLLM, FastChat, and Transformers-based inference frameworks.
 
 ---
+## Deploying and Interacting with xLAM Models
+
+### 🤗 Use Transformers for Inference
 Below is one example on how to use the latest models:
 
 ```python
@@ -138,6 +141,106 @@ print(tokenizer.decode(generated_tokens[0], skip_special_tokens=True))
 
 **Note:** You may need to tune the Temperature setting  for different applications. Typically, a lower Temperature is helpful for tasks that require deterministic outcomes. 
 Additionally, for tasks demanding adherence to specific formats or function calls, explicitly including formatting instructions is advisable and important. 
+
+### ⚡📈 Using vLLM for Inference
+
+The xLAM models can also be efficiently served using vLLM for high-throughput inference. Please use `vllm>=0.6.5` since earlier versions will cause degraded performance for Qwen-based models.
+
+#### Setup and Serving
+
+1. Install vLLM with the required version:
+```bash
+pip install "vllm>=0.6.5"
+```
+
+2. Download the tool parser plugin to your local path:
+```bash
+wget https://huggingface.co/Salesforce/xLAM-2-1b-fc-r/raw/main/xlam_tool_call_parser.py
+```
+
+3. Start the OpenAI API-compatible endpoint:
+```bash
+MODEL_NAME_OR_PATH="Salesforce/xLAM-2-1b-fc-r"
+ASSIGNED_MODEL_NAME="xlam-2-1b-fc-r" # vLLM uses the assigned model name for reference
+NUM_ASSIGNED_GPUS=1 # a 70b model would need 4 GPUs, each with 80GB memory
+PORT=8000
+
+vllm serve $MODEL_NAME_OR_PATH \
+  --tensor-parallel-size $NUM_ASSIGNED_GPUS \
+  --served-model-name $ASSIGNED_MODEL_NAME \
+  --port $PORT \
+  --gpu-memory-utilization 0.9 \
+  --enable-auto-tool-choice \
+  --tool-parser-plugin ./xlam_tool_call_parser.py \
+  --tool-call-parser xlam 
+```
+
+Note: Ensure that the tool parser plugin file is downloaded and that the path specified in `--tool-parser-plugin` correctly points to your local copy of the file. The xLAM series models all utilize the **same** tool call parser, so you only need to download it **once** for all models.
+
+#### Testing with OpenAI API
+
+Here's a minimal example to test tool usage with the served endpoint:
+
+```python
+import openai
+import json
+
+# Configure the client to use your local vLLM endpoint
+client = openai.OpenAI(
+    base_url="http://localhost:8000/v1",  # Default vLLM server PORT
+    api_key="empty"  # Can be any string
+)
+
+# Define a tool/function
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the current weather for a location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "The unit of temperature to return"
+                    }
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+messages = [
+  {"role": "system", "content": "You are a helpful assistant that can use tools."},
+  {"role": "user", "content": "What's the weather like in San Francisco?"}
+]
+
+# Create a chat completion
+if tools is None or tools==[]: # chitchat
+  response = client.chat.completions.create(
+      model="xlam-2-1b-fc-r",  # ASSIGNED_MODEL_NAME
+      messages=messages
+  )
+else: # function calling
+  response = client.chat.completions.create(
+      model="xlam-2-1b-fc-r",  # ASSIGNED_MODEL_NAME
+      messages=messages,
+      tools=tools,
+      tool_choice="auto"
+  )
+
+# Print the response
+print("Assistant's response:")
+print(json.dumps(response.model_dump(), indent=2))
+```
+
+For more advanced configurations and deployment options, please refer to the [vLLM documentation](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html).
 
 
 ---
@@ -221,6 +324,7 @@ The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4
 
 
 ---
+<!-- 
 # Deploying and Interacting with xLAM Models
 
 > ⚠️ **Note**: For working with **xLAM v1.0** models, refer to the  [example notebook and tokenizer information](https://huggingface.co/Salesforce/xLAM-8x22b-r/blob/main/example/xlam_chat_template_examples_11_21.ipynb).
@@ -328,6 +432,8 @@ tools = [
 response = llm.completion(messages, tools=tools)
 print(response)
 ```
+-->
+
 ---
 
 # :trophy: Benchmarks (xLAM-2-fc Series)
@@ -533,6 +639,15 @@ We want to acknowledge the work which have made contributions to our paper and t
 ```
 
 ```bibtex
+@article{liu2024apigen,
+  title={APIGen: Automated PIpeline for Generating Verifiable and Diverse Function-Calling Datasets},
+  author={Liu, Zuxin and Hoang, Thai and Zhang, Jianguo and Zhu, Ming and Lan, Tian and Kokane, Shirley and Tan, Juntao and Yao, Weiran and Liu, Zhiwei and Feng, Yihao and others},
+  journal={arXiv preprint arXiv:2406.18518},
+  year={2024}
+}
+```
+
+```bibtex
 @article{zhang2024agentohana,
   title={AgentOhana: Design Unified Data and Training Pipeline for Effective Agent Learning},
   author={Zhang, Jianguo and Lan, Tian and Murthy, Rithesh and Liu, Zhiwei and Yao, Weiran and Tan, Juntao and Hoang, Thai and Yang, Liangwei and Feng, Yihao and Liu, Zuxin and others},
@@ -540,11 +655,3 @@ We want to acknowledge the work which have made contributions to our paper and t
   year={2024}
 }
 ```
-
-```bibtex
-@article{liu2024apigen,
-  title={APIGen: Automated PIpeline for Generating Verifiable and Diverse Function-Calling Datasets},
-  author={Liu, Zuxin and Hoang, Thai and Zhang, Jianguo and Zhu, Ming and Lan, Tian and Kokane, Shirley and Tan, Juntao and Yao, Weiran and Liu, Zhiwei and Feng, Yihao and others},
-  journal={arXiv preprint arXiv:2406.18518},
-  year={2024}
-}
