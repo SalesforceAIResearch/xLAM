@@ -49,6 +49,9 @@ class ScriptArguments:
     is_data_verfication: Optional[bool] = field(
         default=False, metadata={"help": "whether to conduct data verification"}
     )
+    per_device_train_batch_size: Optional[int] = field(default=3, metadata={"help": "the per device train batch size"})
+    max_steps: Optional[int] = field(default=None, metadata={"help": "(DUMMY VALUE -- IGNORE) the maximum number of sgd steps, use None to allow auto step calculation"})
+    save_steps: Optional[int] = field(default=None, metadata={"help": "(DUMMY VALUE -- IGNORE) the checkoint saving frequency (None to save every max_steps)"})
 
     # access
     hf_credential_json_config: Optional[str] = field(default="", metadata={"help": "the json file for HuggingFace credential config"})
