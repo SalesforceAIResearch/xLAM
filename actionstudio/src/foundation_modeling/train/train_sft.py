@@ -166,7 +166,7 @@ def prepare_data(accelerator, script_args, seed=9120):
     yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config)
     sample_probs, yaml_data, num_total_data = create_sampled_ratio(yaml_data)
 
-    if not script_args.is_data_verfication:
+    if not script_args.is_data_verfication:     # only want to check the `calculated_steps` when doing real training, not data verifying
         # Calculate the max training steps. Note the num_optimization_updates = max_steps / gradient_accumulation_steps
         calculated_steps = num_total_data // (script_args.per_device_train_batch_size * accelerator.num_processes)
         
