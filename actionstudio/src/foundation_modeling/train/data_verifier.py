@@ -46,6 +46,9 @@ class ScriptArguments:
         default="",
         metadata={"help": "the default yaml file for data mixed ratio recipe config"}
     )
+    is_data_verfication: Optional[bool] = field(
+        default=False, metadata={"help": "whether to conduct data verification"}
+    )
 
     # access
     hf_credential_json_config: Optional[str] = field(default="", metadata={"help": "the json file for HuggingFace credential config"})
