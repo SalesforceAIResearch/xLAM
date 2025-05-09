@@ -30,5 +30,6 @@ torchrun --nproc_per_node 1 "${SRC_ROOT}/src/foundation_modeling/train/data_veri
     --ds_config_path "${DS_CONFIG_PATH}" \
     --data_save_dir $DATA_SAVE_DIR \
     --data_mix_recipe_yaml_config $DATA_MIX_RECIPE \
+    --is_data_verfication True \
     --hf_credential_json_config "${HF_CREDENTIAL_CONFIG}" \
     --wandb_credential_json_config "${WANDB_CREDENTIAL_CONFIG}"
