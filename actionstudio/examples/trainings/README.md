@@ -4,6 +4,10 @@ This directory contains bash scripts for data verification, model training, and 
 
 ## Quick Start
 
+### Data Conversion
+
+Follow instructions in [actionstudio/src/data_pipeline/README.md](https://github.com/SalesforceAIResearch/xLAM/blob/main/actionstudio/src/data_pipeline/README.md) to convert our unified trajectory datasets into formats suitable for training.
+
 ### Data Verification (Optional but Highly Recommended)
 Verify training data integrity:
 
