@@ -31,7 +31,7 @@ pip install -e .
 
 ```text
 actionstudio/
-├── datasets/                             # Open-source unified trajectory datasets
+├── datasets/                             # Open-source **`unified trajectory datasets`**
 ├── examples/                             # Usage examples and configurations
 │   ├── data_configs/                     # YAML configs for data mixtures
 │   ├── deepspeed_configs/                # DeepSpeed training configuration files
@@ -53,6 +53,9 @@ actionstudio/
 The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4.0 License. The data provided are intended for research purposes only.
 
 ## 🛠️ Code Updates History
+
+**May 09, 2025**
+- Fixed argument error in data_verifier. Ref to [#24](https://github.com/SalesforceAIResearch/xLAM/issues/24).
 
 **April 14, 2025**
 - Updated dependency versions to support the latest models and techniques
