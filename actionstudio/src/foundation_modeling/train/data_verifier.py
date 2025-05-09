@@ -43,11 +43,10 @@ class ScriptArguments:
     # data
     data_save_dir: Optional[str] = field(default="actionstudio/data/train/sft", metadata={"help": "the default dataset dir"})
     data_mix_recipe_yaml_config: Optional[str] = field(
-        default="",
-        metadata={"help": "the default yaml file for data mixed ratio recipe config"}
+        default="", metadata={"help": "the default yaml file path for data mixed ratio recipe config"}
     )
-    is_data_verfication: Optional[bool] = field(
-        default=False, metadata={"help": "whether to conduct data verification"}
+    is_data_pre_verification: Optional[bool] = field(
+        default=False, metadata={"help": "whether to conduct data pre-verification before training"}
     )
 
     # access
