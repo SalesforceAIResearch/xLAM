@@ -71,6 +71,9 @@ class ScriptArguments:
         default="",
         metadata={"help": "the default yaml file path for data mixed ratio recipe config"}
     )
+    is_data_verfication: Optional[bool] = field(
+        default=False, metadata={"help": "whether to conduct data verification"}
+    )
 
     # access
     hf_credential_json_config: Optional[str] = field(default="", metadata={"help": "the json file for HuggingFace credential config"})
@@ -162,27 +165,28 @@ def prepare_data(accelerator, script_args, seed=9120):
     # load data mix config
     yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config)
     sample_probs, yaml_data, num_total_data = create_sampled_ratio(yaml_data)
-    
-    # Calculate the max training steps. Note the num_optimization_updates = max_steps / gradient_accumulation_steps
-    calculated_steps = num_total_data // (script_args.per_device_train_batch_size * accelerator.num_processes)
-    
-    # If max_steps is provided, validate it matches calculated value
-    if accelerator.is_main_process and not script_args.debug_mode and script_args.max_steps is not None and script_args.max_steps != calculated_steps:
-        raise ValueError(
-            f"❤️ Provided max_steps ({script_args.max_steps}) doesn't match calculated steps ({calculated_steps}) ❤️. "
-            f"Please check your data configuration and batch settings!"
-        )
-    
-    # Set max_steps to calculated value if not explicitly provided
-    if script_args.max_steps is None:
-        script_args.max_steps = calculated_steps
-    # By default, save the model every half of the max_steps
-    if script_args.save_steps is None:
-        script_args.save_steps = script_args.max_steps // 2
-    
-    if accelerator.is_main_process:
-        new_path = script_args.data_mix_recipe_yaml_config.replace(".yaml", "") + "--processed.yaml"
-        save_yaml_file(new_path, yaml_data)
+
+    if not script_args.is_data_verfication:
+        # Calculate the max training steps. Note the num_optimization_updates = max_steps / gradient_accumulation_steps
+        calculated_steps = num_total_data // (script_args.per_device_train_batch_size * accelerator.num_processes)
+        
+        # If max_steps is provided, validate it matches calculated value
+        if accelerator.is_main_process and not script_args.debug_mode and script_args.max_steps is not None and script_args.max_steps != calculated_steps:
+            raise ValueError(
+                f"❤️ Provided max_steps ({script_args.max_steps}) doesn't match calculated steps ({calculated_steps}) ❤️. "
+                f"Please check your data configuration and batch settings!"
+            )
+        
+        # Set max_steps to calculated value if not explicitly provided
+        if script_args.max_steps is None:
+            script_args.max_steps = calculated_steps
+        # By default, save the model every half of the max_steps
+        if script_args.save_steps is None:
+            script_args.save_steps = script_args.max_steps // 2
+        
+        if accelerator.is_main_process:
+            new_path = script_args.data_mix_recipe_yaml_config.replace(".yaml", "") + "--processed.yaml"
+            save_yaml_file(new_path, yaml_data)
 
     accelerator.wait_for_everyone()
      
