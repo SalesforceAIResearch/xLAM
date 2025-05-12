@@ -29,6 +29,7 @@
 ---
 
 ## 🎉🎉🎉 News
+- **[05-12.2025]** Our [xLAM Presentation Slides](https://docs.google.com/presentation/d/1IAdUPSFLd0l05T_IwfcUPI5b_pe0StNFjBd6Srosap8/edit?usp=sharing) for the **NAACL 2025 Oral Session** are now live!   📂 We’ve also open-sourced [**APIGen-MT-5k**](https://huggingface.co/datasets/Salesforce/APIGen-MT-5k) — a compact yet powerful dataset to explore multi-turn function-calling.
 - **[04-15.2025]** 🏆🏆🏆 **xLAM-2-fc-r achieves Top-1 performance** on the latest [BFCL Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html)!
 - **[04-15.2025]**: 🚀🚀🚀 **ActionStudio is now open-source!** Checkout our [paper](https://arxiv.org/abs/2503.22673) and [code](ActionStudio_README.md) for full details.
 - **[04-15.2025]**: 📢📢📢 **APIGen-MT is now open-source!** Learn more in our [paper](https://arxiv.org/pdf/2504.03601) and [Project Website](https://apigen-mt.github.io/)!
