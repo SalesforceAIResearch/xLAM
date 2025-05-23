@@ -48,6 +48,10 @@ actionstudio/
 
 🔍 Most top-level folders include a **README.md** with detailed instructions and explanations.
 
+## ⚡ Efficiency
+<img width="1705" alt="image" src="https://github.com/user-attachments/assets/7885ba5f-2155-431b-941f-0cbfc6641432" />
+
+
 ## 📜 Licenses
 
 The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4.0 License. The data provided are intended for research purposes only.
