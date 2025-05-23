@@ -258,8 +258,8 @@ For more advanced configurations and deployment options, please refer to the [vL
 
 <p align="center">
     <br>
-<!--     <img src="./images/framework.png" width="700"/> -->
-    <img src="./images/actionstudio.jpg" width="900"/>
+<!--     <img src="./images/framework.png" width="650"/> -->
+    <img src="./images/actionstudio_0523.jpg" width="900"/>
     <br>
 <p>
 
