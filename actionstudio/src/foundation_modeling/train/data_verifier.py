@@ -145,6 +145,10 @@ def main(script_args) -> None:
                 to_replace_inp_tok = "<|finetune_right_pad_id|>"
                 to_replace_tok_id = 128004
                 to_replace_tok = "<|finetune_right_pad_id|>"
+            elif "qwen2.5" in script_args.model_name.lower(): # all qwen2.5 models has same pad token (<|endoftext|>) and pad token id (151643)
+                to_replace_inp_tok = "<|endoftext|>"
+                to_replace_tok_id = 151643
+                to_replace_tok = "<|endoftext|>"
             else:
                 to_replace_inp_tok = "<unk>"
                 to_replace_tok_id = 1
@@ -158,10 +162,10 @@ def main(script_args) -> None:
             print("     labels =", labels)
             print("     attention_mask =", attention_mask)
             print("Decoded data:")
-            print("====Input====")
+            print("======================== ❤️ Input ❤️ =========================")
             print(tokenizer.decode(input_ids[0], skip_sepcial_tokens=False).replace(to_replace_inp_tok, ""))
             print()
-            print("====Labels====")
+            print("======================== ❤️ Labels ❤️ =========================")
             print(tokenizer.decode(labels[0], skip_special_tokens=False).replace(to_replace_tok, ""))
             print("---------------------------------------\n")
 
