@@ -1,4 +1,4 @@
-# 🧠 ActionStudio: A Lightweight Framework for Agentic Data and Training of Large Action Models
+# 🧠 [ActionStudio](https://arxiv.org/pdf/2503.22673): A Lightweight Framework for Agentic Data and Training of Large Action Models
 
 ---
 > **Note**: Any data related to xLAM is **partially released due to internal regulations** to support the advancement of the agent research community.
