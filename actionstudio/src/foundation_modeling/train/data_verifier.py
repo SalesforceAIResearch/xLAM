@@ -162,10 +162,10 @@ def main(script_args) -> None:
             print("     labels =", labels)
             print("     attention_mask =", attention_mask)
             print("Decoded data:")
-            print("======================== ❤️ Input ❤️ =========================")
+            print("========================❤️ Input ❤️=========================")
             print(tokenizer.decode(input_ids[0], skip_sepcial_tokens=False).replace(to_replace_inp_tok, ""))
             print()
-            print("======================== ❤️ Labels ❤️ =========================")
+            print("========================❤️ Labels ❤️=========================")
             print(tokenizer.decode(labels[0], skip_special_tokens=False).replace(to_replace_tok, ""))
             print("---------------------------------------\n")
 

@@ -16,16 +16,21 @@ from actionstudio.src.foundation_modeling.data_handlers.derived_data_collator im
 from actionstudio.src.foundation_modeling.data_handlers.interleave_datasets import interleave_data
 
 from actionstudio.src.foundation_modeling.utils.seed_random import init_device_seed
-from actionstudio.src.foundation_modeling.utils.common import load_yaml_file, create_sampled_ratio, save_yaml_file
+from actionstudio.src.foundation_modeling.utils.common import load_yaml_file, create_sampled_ratio, save_yaml_file, save_json
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 @dataclass
 class ScriptArguments:
+    # Required fields (no defaults)
+    # In dataclasses, you can't have a required field (without default) after optional fields (with defaults).
+    model_save_id: str = field(metadata={"help": "unique model id for saving model configuration"})
+    
     # model
     model_name: Optional[str] = field(default="mistralai/Mixtral-8x7B-Instruct-v0.1", metadata={"help": "the model name"})
     fc_mode: Optional[bool] = field(default=False, metadata={"help": "whether to use function mode when using Tokenizer's chat template"})    
+    enable_thinking: Optional[bool] = field(default=False, metadata={"help": "whether to enable thinking, default is False for qwen3 models"})
     seq_length: Optional[int] = field(default=4096, metadata={"help": "the sequence length"})
     
     # logging
@@ -52,10 +57,12 @@ class ScriptArguments:
     # training
     mask_prompt_loss: Optional[bool] = field(default=True, metadata={"help": "mask prompt loss or not"})
     learning_rate: Optional[float] = field(default=1e-4, metadata={"help": "the learning rate"})
+    min_learning_rate: Optional[float] = field(default=1e-6, metadata={"help": "the minimum learning rate"})
     lr_scheduler_type: Optional[str] = field(default="cosine", metadata={"help": "the lr scheduler type"})
     num_warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
-    weight_decay: Optional[float] = field(default=0.05, metadata={"help": "the weight decay"})
-    optimizer_type: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
+    scheduler_params: Optional[str] = field(default=None, metadata={"help": "custom scheduler params in format: 'warmup_min_lr=2e-5,warmup_type=linear,warmup_num_steps=200,total_num_steps=3000'"})
+    weight_decay: Optional[float] = field(default=0.01, metadata={"help": "the weight decay"})
+    optimizer_type: Optional[str] = field(default="adamw", metadata={"help": "the optimizer type"})
     max_steps: Optional[int] = field(default=None, metadata={"help": "the maximum number of sgd steps, use None to allow auto step calculation"})
     logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency"})
     per_device_train_batch_size: Optional[int] = field(default=3, metadata={"help": "the per device train batch size"})
@@ -64,11 +71,14 @@ class ScriptArguments:
     gradient_accumulation_steps: Optional[int] = field(default=2, metadata={"help": "the gradient accumulation steps"})
 
     # data
-    output_dir: Optional[str] = field(default="./results", metadata={"help": "the output directory"})
+    output_dir: Optional[str] = field(default="./checkpoints", metadata={"help": "the output directory for saving model checkpoints"})
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
     data_save_dir: Optional[str] = field(default="actionstudio/data/train/sft", metadata={"help": "the default dataset dir"})
     data_mix_recipe_yaml_config: Optional[str] = field(
         default="", metadata={"help": "the default yaml file path for data mixed ratio recipe config"}
+    )
+    data_mix_or_unify: Optional[str] = field(
+        default="unify", metadata={"help": "whether to mix data (i.e., add general data) or unify data (i.e., only use agent data). Options: ['mix', 'unify']"}
     )
     is_data_pre_verification: Optional[bool] = field(
         default=False, metadata={"help": "whether to conduct data pre-verification before training"}
@@ -96,8 +106,98 @@ def prepare_accelerator(script_args):
     Returns:
         accelerator: the accelerator engine
     """
+    # Load the base DeepSpeed config
+    with open(script_args.ds_config_path, 'r') as f:
+        ds_config = json.load(f)
+    
+    # Update optimizer configuration if needed
+    # Configure AdamW optimizer for DeepSpeed with standard settings
+    optimizer_config = {
+        "type": script_args.optimizer_type,
+        "params": {
+            "lr": script_args.learning_rate,
+            "betas": [0.9, 0.999],  # Standard AdamW settings
+            "eps": 1e-8,
+            "weight_decay": script_args.weight_decay,
+            "adam_w_mode": True,  # Ensure AdamW mode (decoupled weight decay)
+            "torch_adam": True,   # Use PyTorch's AdamW instead of DeepSpeed's fused version
+        }
+    }
+    ds_config["optimizer"] = optimizer_config
+    # Only print once (will be shown when DeepSpeed prints full config anyway)
+    
+    # Update scheduler configuration if needed
+    # Always configure scheduler to ensure it matches the training parameters
+    # Calculate optimizer steps
+    # max_steps is already per-process (calculated in prepare_data)
+    num_optimizer_steps = script_args.max_steps // script_args.gradient_accumulation_steps
+    
+    # Map lr_scheduler_type to DeepSpeed scheduler type
+    scheduler_type_mapping = {
+        "cosine": "WarmupCosineLR",
+        "linear": "WarmupLR", 
+        "constant": "WarmupLR",
+        "constant_with_warmup": "WarmupLR",
+        "polynomial": "WarmupDecayLR",
+        "cosine_with_restarts": "WarmupCosineLR",  # DeepSpeed doesn't have restarts, use regular cosine
+    }
+    
+    ds_scheduler_type = scheduler_type_mapping.get(script_args.lr_scheduler_type, "WarmupCosineLR")
+    
+    # Default scheduler config
+    scheduler_config = {
+        "type": ds_scheduler_type,
+        "params": {}
+    }
+    
+    # Configure parameters based on scheduler type
+    if ds_scheduler_type == "WarmupCosineLR":
+        # WarmupCosineLR uses ratios, not absolute learning rates
+        # warmup_min_rato = max(base_lr / 10, min_lr) / base_lr
+        warmup_min_ratio = max(script_args.learning_rate / 10, script_args.min_learning_rate) / script_args.learning_rate
+        scheduler_config["params"] = {
+            "warmup_min_ratio": warmup_min_ratio,
+            "warmup_num_steps": script_args.num_warmup_steps,
+            "cos_min_ratio": script_args.min_learning_rate / script_args.learning_rate,  # End learning rate as ratio
+            "total_num_steps": num_optimizer_steps,
+        }
+    elif ds_scheduler_type == "WarmupDecayLR":
+        scheduler_config["params"] = {
+            "warmup_min_lr": max(script_args.learning_rate / 10, script_args.min_learning_rate),
+            "warmup_max_lr": script_args.learning_rate,
+            "warmup_num_steps": script_args.num_warmup_steps,
+            "total_num_steps": num_optimizer_steps,
+        }
+    else:  # WarmupLR
+        scheduler_config["params"] = {
+            "warmup_min_lr": max(script_args.learning_rate / 10, script_args.min_learning_rate),
+            "warmup_max_lr": script_args.learning_rate,
+            "warmup_num_steps": script_args.num_warmup_steps,
+            "warmup_type": "linear",
+        }
+    
+    # Update with custom parameters if provided
+    if script_args.scheduler_params:
+        # Parse scheduler params (expected format: "warmup_min_lr=1e-5,warmup_type=linear")
+        for param in script_args.scheduler_params.split(','):
+            if '=' in param:
+                key, value = param.split('=', 1)
+                # Convert numeric strings to appropriate types
+                if key in ['warmup_min_lr', 'warmup_max_lr', 'warmup_min_ratio', 'cos_min_ratio']:
+                    value = float(value)
+                elif key in ['warmup_num_steps', 'total_num_steps']:
+                    value = int(value)
+                scheduler_config["params"][key] = value
+    
+    # Update the config
+    ds_config["scheduler"] = scheduler_config
+    # Scheduler config will be shown when DeepSpeed prints full config
+    
+    # Update train_micro_batch_size_per_gpu to match script_args
+    ds_config["train_micro_batch_size_per_gpu"] = script_args.per_device_train_batch_size
+    
     deepspeed_plugin = DeepSpeedPlugin(
-        hf_ds_config=script_args.ds_config_path,
+        hf_ds_config=ds_config,  # Pass the dict directly instead of file path
         zero_stage=int(script_args.ds_stage),
         gradient_accumulation_steps=int(script_args.gradient_accumulation_steps),
         zero3_init_flag=(int(script_args.ds_stage) == 3),
@@ -131,14 +231,15 @@ def prepare_accelerator(script_args):
             }
         )
 
-    return accelerator
+    return accelerator, ds_config
 
-def prepare_data(accelerator, script_args, seed=9120):
+def prepare_data(accelerator, script_args, ds_config, seed=9120):
     """
     Given the script args and optionally the random seed, prepare the tokenizer, train, and eval dataset and the data collator for training.
     
     Args:
         script_args: training script args
+        ds_config: DeepSpeed configuration from prepare_accelerator
         
     Returns:
         tokenizer: tokenizer object
@@ -147,6 +248,8 @@ def prepare_data(accelerator, script_args, seed=9120):
         collator: data collator
     """
     # tokenizer
+    if accelerator.is_main_process: 
+        print("Loading tokenizer from:\n ", script_args.model_name)
     tokenizer = AutoTokenizer.from_pretrained(script_args.model_name, trust_remote_code=True, add_bos_token=False)      # note: it is important to not add bos here, since apply_chat_template is already doing that
     tokenizer.padding_side = "right"  # Fix weird overflow issue with fp16 training
     tokenizer.truncation_side = "left" # We want to keep the label side
@@ -154,7 +257,7 @@ def prepare_data(accelerator, script_args, seed=9120):
     if "llama" in script_args.model_name.lower():
         tokenizer.pad_token = "<|finetune_right_pad_id|>"
         tokenizer.pad_token_id = 128004
-    elif "pad_token" in tokenizer.special_tokens_map:
+    elif "pad_token" in tokenizer.special_tokens_map: # all qwen2.5 & qwen3 models has same pad token (<|endoftext|>) and pad token id (151643)
         tokenizer.pad_token = tokenizer.special_tokens_map["pad_token"]
         tokenizer.pad_token_id = tokenizer.pad_token_id
     else:
@@ -168,6 +271,7 @@ def prepare_data(accelerator, script_args, seed=9120):
     # only want to check the `calculated_steps` when doing real training, not during data verifying
     if not script_args.is_data_pre_verification:     
         # Calculate the max training steps. Note the num_optimization_updates = max_steps / gradient_accumulation_steps
+        # accelerator.num_processes = script_args.num_nodes * script_args.num_gpus_per_node
         calculated_steps = num_total_data // (script_args.per_device_train_batch_size * accelerator.num_processes)
         
         # If max_steps is provided, validate it matches calculated value
@@ -185,6 +289,129 @@ def prepare_data(accelerator, script_args, seed=9120):
             script_args.save_steps = script_args.max_steps // 2
         
         if accelerator.is_main_process:
+            # Print training configuration details
+            num_optimizer_steps = script_args.max_steps // script_args.gradient_accumulation_steps
+            print(f"\n[Training Configuration]")
+            print(f"  Total data samples: {num_total_data}")
+            print(f"  Data mix or unify: {script_args.data_mix_or_unify}")
+            print(f"  Per-device batch size: {script_args.per_device_train_batch_size}")
+            print(f"  Number of processes (num_nodes * num_gpus_per_node): {accelerator.num_processes}")
+            print(f"  Gradient accumulation steps: {script_args.gradient_accumulation_steps}")
+            print(f"  Total batch size: {script_args.per_device_train_batch_size * accelerator.num_processes * script_args.gradient_accumulation_steps}")
+            print(f"  Total training steps: {script_args.max_steps}")
+            print(f"  Total optimizer steps: {num_optimizer_steps}")
+            print(f"  Use lora: {script_args.use_lora}")
+            print(f"  Use fc_mode: {script_args.fc_mode}")
+            print(f"  Enable thinking: {script_args.enable_thinking}")
+            print(f"  Mask prompt loss: {script_args.mask_prompt_loss}")
+            print(f"  Learning rate: {script_args.learning_rate}")
+            print(f"  Min learning rate: {script_args.min_learning_rate}")
+            print(f"  Lr scheduler type: {script_args.lr_scheduler_type}")
+            print(f"  Num warmup steps: {script_args.num_warmup_steps}")
+            print(f"  Scheduler params: {script_args.scheduler_params}")
+            print(f"  Weight decay: {script_args.weight_decay}")
+            print(f"  Optimizer type: {script_args.optimizer_type}")
+            print(f"  Weight precision: {script_args.weight_precision}")
+            print(f"  DS stage: {script_args.ds_stage}")
+            print(f"  DS config path: {script_args.ds_config_path}")
+            print(f"  Gradient checkpointing: {script_args.gradient_checkpointing}")
+            print(f"  Debug mode: {script_args.debug_mode}")
+            print(f"  Data mix recipe yaml config: {script_args.data_mix_recipe_yaml_config}")
+            print(f"  Data save dir: {script_args.data_save_dir}")
+            print(f"  Is data pre verification: {script_args.is_data_pre_verification}")
+            print(f"\n  → Full configuration saved to: model_config_files/{script_args.model_save_id}.json")
+            print()
+                     
+            # Save all configurations to JSON file
+            config_to_save = {
+                "training_configuration": {
+                    "total_data_samples": num_total_data,
+                    "data_mix_or_unify": script_args.data_mix_or_unify,
+                    "per_device_train_batch_size": script_args.per_device_train_batch_size,
+                    "per_device_eval_batch_size": script_args.per_device_eval_batch_size,
+                    "num_processes (num_nodes * num_gpus_per_node)": accelerator.num_processes,
+                    "gradient_accumulation_steps": script_args.gradient_accumulation_steps,
+                    "total_train_batch_size": script_args.per_device_train_batch_size * accelerator.num_processes * script_args.gradient_accumulation_steps,
+                    "total_training_steps": script_args.max_steps,
+                    "total_optimizer_steps": num_optimizer_steps,
+                    "save_steps": script_args.save_steps,
+                    "logging_steps": script_args.logging_steps,
+                },
+                "model_configuration": {
+                    "model_name": script_args.model_name,
+                    "seq_length": script_args.seq_length,
+                    "use_lora": script_args.use_lora,
+                    "fc_mode": script_args.fc_mode,
+                    "enable_thinking": script_args.enable_thinking,
+                    "mask_prompt_loss": script_args.mask_prompt_loss,
+                    "gradient_checkpointing": script_args.gradient_checkpointing,
+                },
+                "optimizer_configuration": {
+                    "optimizer_type": script_args.optimizer_type,
+                    "learning_rate": script_args.learning_rate,
+                    "min_learning_rate": script_args.min_learning_rate,
+                    "weight_decay": script_args.weight_decay,
+                },
+                "scheduler_configuration": {
+                    "lr_scheduler_type": script_args.lr_scheduler_type,
+                    "num_warmup_steps": script_args.num_warmup_steps,
+                    "scheduler_params": script_args.scheduler_params,
+                },
+                "deepspeed_configuration": {
+                    "ds_stage": script_args.ds_stage,
+                    "ds_config_path": script_args.ds_config_path,
+                    "weight_precision": script_args.weight_precision,
+                },
+                "data_configuration": {
+                    "data_mix_recipe_yaml_config": script_args.data_mix_recipe_yaml_config,
+                    "data_save_dir": script_args.data_save_dir,
+                    "is_data_pre_verification": script_args.is_data_pre_verification,
+                    "streaming": script_args.streaming,
+                    "shuffle_buffer_size": script_args.shuffle_buffer_size,
+                    "num_workers": script_args.num_workers,
+                },
+                "logging_configuration": {
+                    "use_log": script_args.use_log,
+                    "log_with": script_args.log_with,
+                    "project_name": script_args.project_name,
+                    "run_name": script_args.run_name,
+                    "model_save_id": script_args.model_save_id,
+                    "model_output_dir": script_args.output_dir,
+                    "log_freq": script_args.log_freq,
+                },
+                "other_configuration": {
+                    "seed": script_args.seed,
+                    "debug_mode": script_args.debug_mode,
+                },
+            }
+            
+            # Add LoRA configuration if enabled
+            if script_args.use_lora:
+                config_to_save["lora_configuration"] = {
+                    "lora_alpha": script_args.lora_alpha,
+                    "lora_dropout": script_args.lora_dropout,
+                    "lora_r": script_args.lora_r,
+                    "lora_target_modules": script_args.lora_target_modules,
+                }
+            
+            # Load and add the actual DeepSpeed configuration
+            # ds_config is already passed from prepare_accelerator with all configurations set
+            
+            config_to_save["deepspeed_actual_full_config"] = ds_config
+            
+            # Also save the DeepSpeed scheduler config separately for easy access
+            config_to_save["deepspeed_full_scheduler_config"] = ds_config["scheduler"]
+            config_to_save["deepspeed_full_scheduler_config"]["params"]["begin_lr"] = script_args.learning_rate * ds_config["scheduler"]["params"]["warmup_min_ratio"]
+            config_to_save["deepspeed_full_scheduler_config"]["params"]["end_lr"] = script_args.learning_rate * ds_config["scheduler"]["params"]["cos_min_ratio"]
+
+            
+            # Save to JSON file
+            os.makedirs("model_config_files", exist_ok=True)
+            save_json(os.path.join("model_config_files", f"{script_args.model_save_id}.json"), config_to_save)
+
+            print(f"Model Configuration saved to: model_config_files/{script_args.model_save_id}.json\n")
+            print()
+            
             new_path = script_args.data_mix_recipe_yaml_config.replace(".yaml", "") + "--processed.yaml"
             save_yaml_file(new_path, yaml_data)
 
@@ -195,7 +422,6 @@ def prepare_data(accelerator, script_args, seed=9120):
         data.append(AnyDatasetLoader(selected_dataset_name, tokenizer, script_args))
 
     # load collator
-    if accelerator.is_main_process: print("using fc_mode:", script_args.fc_mode)
     collator = DataCollatorForPromptAnswer(
         tokenizer=tokenizer,
         mlm=False
@@ -208,8 +434,10 @@ def prepare_data(accelerator, script_args, seed=9120):
             data_objects=data,
             sample_probs=sample_probs,
             return_type="prompt_answer",
+            script_args=script_args,
             seq_length=script_args.seq_length,
             fc_mode=script_args.fc_mode,
+            enable_thinking=script_args.enable_thinking,
             mask_prompt_loss=script_args.mask_prompt_loss,
             seed=seed)
 
@@ -217,7 +445,7 @@ def prepare_data(accelerator, script_args, seed=9120):
 
 def main(script_args):
     # spin up accelerator
-    accelerator = prepare_accelerator(script_args)
+    accelerator, ds_config = prepare_accelerator(script_args)
         
     # login HF (remove if not use any data from HF)
     if accelerator.is_main_process:
@@ -230,7 +458,7 @@ def main(script_args):
     seed = init_device_seed(seed=script_args.seed, accelerator=accelerator)
     
     # setup data
-    tokenizer, train_dataset, eval_dataset, collator = prepare_data(accelerator, script_args, seed)
+    tokenizer, train_dataset, eval_dataset, collator = prepare_data(accelerator, script_args, ds_config, seed)
 
     # setup trainer
     trainer = SFTFoundationTrainerLite(

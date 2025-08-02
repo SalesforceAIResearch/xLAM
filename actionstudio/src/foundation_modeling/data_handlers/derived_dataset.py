@@ -31,10 +31,12 @@ class PromptAnswerDataset(IterableDataset):
 
     def __init__(
         self,
+        accelerator,
         tokenizer,
         dataset,
         sample_probs,
         seed,
+        script_args=None,
         dataset_text_field=None,
         formatting_func=None,
         mask_prompt_loss=True,
@@ -44,7 +46,7 @@ class PromptAnswerDataset(IterableDataset):
         num_of_sequences=256,
         eos_token_id=0,
         shuffle=True,
-        fc_mode=True,
+        fc_mode=True
     ):
         self.tokenizer = tokenizer
 
@@ -69,20 +71,24 @@ class PromptAnswerDataset(IterableDataset):
         self.infinite = infinite
         self.shuffle = shuffle
         self.current_size = 0
+        self.script_args = script_args
 
         if formatting_func is None:
-            print("Formatting function is None")
+            if accelerator.is_main_process:
+                print("Formatting function is None")
             self.formatting_func = lambda x: x[dataset_text_field]
         else:
-            print("Formatting function is NOT None")
+            if accelerator.is_main_process:
+                print("Formatting function is NOT None")
             self.formatting_func = formatting_func
             
         self.mask_prompt_loss = mask_prompt_loss        
         self.ignore_index = ignore_index
         
-        print(f"mask_prompt_loss = {self.mask_prompt_loss} -- ignore_index = {self.ignore_index}")
+        if accelerator.is_main_process:
+            print(f"mask_prompt_loss = {self.mask_prompt_loss} -- ignore_index = {self.ignore_index}")
 
-        dataset_base = SFTFoundationModelDataBaseV2(tokenizer=self.tokenizer, args=None, fc_mode=fc_mode)
+        dataset_base = SFTFoundationModelDataBaseV2(tokenizer=self.tokenizer, args=self.script_args, fc_mode=fc_mode)
 
     def __len__(self):
         return len(self.dataset)
