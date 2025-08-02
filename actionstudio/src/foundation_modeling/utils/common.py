@@ -67,7 +67,7 @@ def open_json(file_path):
 
 def save_json(file_path, data):
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4)
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
 def open_jsonl(filepath):
@@ -96,23 +96,31 @@ def save_yaml_file(filepath, data):
             print("Error in saving YAML file:", exc)
 
 
-def create_sampled_ratio(yaml_data):
+def create_sampled_ratio(yaml_data, return_dict=False):
     total_data = 0
-    for dataset_name in yaml_data.keys():
-        total_data += int(yaml_data[dataset_name]["size"] * yaml_data[dataset_name]["epochs"])
+    for dataset_name, cfg in yaml_data.items():
+        total_data += int(cfg["size"] * cfg["epochs"])
         
     all_sampled_ratios = 0.
-    sample_probs = []
-    for dataset_name in yaml_data.keys():
-        sampled_training_examples = int(yaml_data[dataset_name]["size"] * yaml_data[dataset_name]["epochs"])
-        yaml_data[dataset_name]["sampled_training_examples"] = sampled_training_examples
-        yaml_data[dataset_name]["sampled_training_ratio"] = sampled_training_examples * 1. / total_data
-        all_sampled_ratios += yaml_data[dataset_name]["sampled_training_ratio"]
+    sample_probs, env_names = {}, []
+    for dataset_name, cfg in yaml_data.items():
+        sampled_training_examples = int(cfg["size"] * cfg["epochs"])
+        cfg["sampled_training_examples"] = sampled_training_examples
+        cfg["sampled_training_ratio"] = sampled_training_examples * 1. / total_data
+        all_sampled_ratios += cfg["sampled_training_ratio"]
     
-        sample_probs.append(yaml_data[dataset_name]["sampled_training_ratio"])
+        env_names.append(dataset_name)
+        sample_probs[dataset_name] = cfg["sampled_training_ratio"]
     
+    # We keep it although it is redundant, dict is unordered from python 3.7
+    if env_names != list(sample_probs.keys()):
+        raise ValueError(f"Env names {env_names} do not match sample_probs keys {sample_probs.keys()}")
+
     if round(all_sampled_ratios, 3) != 1.0:
         raise ValueError(f"Sampled ratios {all_sampled_ratios} do not sum to 1.0 - please check your YAML file.") 
+    
+    if not return_dict:
+        sample_probs = list(sample_probs.values())
     
     return sample_probs, yaml_data, total_data
 

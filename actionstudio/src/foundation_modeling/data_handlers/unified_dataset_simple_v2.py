@@ -13,7 +13,7 @@ This is a base dataset file for the unified dataset.
 """
 
 _URL = """@article{zhang2025actionstudio,
-  title={ActionStudio: A Lightweight Framework for Data and Training of Action Models},
+  title={ActionStudio: A Lightweight Framework for Data and Training of Large Action Models},
   author={Zhang, Jianguo and Hoang, Thai and Zhu, Ming and Liu, Zuxin and Wang, Shiyu and Awalgaonkar, Tulika and Prabhakar, Akshara and Chen, Haolin and Yao, Weiran and Liu, Zhiwei and others},
   journal={arXiv preprint arXiv:2503.22673},
   year={2025}

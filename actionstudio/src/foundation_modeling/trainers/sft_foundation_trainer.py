@@ -67,6 +67,30 @@ class SFTFoundationTrainerLite:
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
+        # Validate train_batch_size after DeepSpeed has resolved "auto" values
+        if self.accelerator.state.deepspeed_plugin is not None and self.accelerator.is_main_process:
+            ds_config = self.accelerator.state.deepspeed_plugin.deepspeed_config
+            if "train_batch_size" in ds_config:
+                actual_train_batch_size = ds_config["train_batch_size"]
+                expected_train_batch_size = (
+                    self.args.per_device_train_batch_size * 
+                    self.args.gradient_accumulation_steps * 
+                    self.accelerator.num_processes
+                )
+                
+                if actual_train_batch_size != expected_train_batch_size:
+                    raise ValueError(
+                        f"DeepSpeed train_batch_size mismatch after initialization!\n"
+                        f"  Expected: {expected_train_batch_size} "
+                        f"(per_device_train_batch_size={self.args.per_device_train_batch_size} × "
+                        f"gradient_accumulation_steps={self.args.gradient_accumulation_steps} × "
+                        f"num_processes={self.accelerator.num_processes})\n"
+                        f"  Actual (resolved by DeepSpeed): {actual_train_batch_size}\n"
+                        f"  This indicates a configuration issue that needs to be fixed!"
+                    )
+                else:
+                    print(f"❤️ [✓] DeepSpeed ❤️ train_batch_size validation passed: {actual_train_batch_size}\n")
+
     def _prepare_optimizer(self, model):
         assert isinstance(self.accelerator, Accelerator)
         if self.accelerator.state.deepspeed_plugin is None or "optimizer" not \
@@ -82,15 +106,19 @@ class SFTFoundationTrainerLite:
         assert isinstance(self.accelerator, Accelerator)
         if self.accelerator.state.deepspeed_plugin is None or "scheduler" not \
                 in self.accelerator.state.deepspeed_plugin.deepspeed_config:
+            # max_steps is total training steps, but scheduler needs optimizer steps
+            num_optimizer_steps = self.args.max_steps // self.args.gradient_accumulation_steps
             lr_scheduler = get_scheduler(
                 name=self.args.lr_scheduler_type,
                 optimizer=optimizer,
                 num_warmup_steps=self.args.num_warmup_steps,
-                num_training_steps=self.args.max_steps,
+                num_training_steps=num_optimizer_steps,
             )
         else:
             if self.accelerator.is_main_process:
                 print("Using DummyScheduler --> move to DS scheduler")
+            # DeepSpeed manages the scheduler internally with the config we already set in prepare_accelerator
+            # DummyScheduler stores these values but doesn't use them for scheduling
             lr_scheduler = DummyScheduler(
                 optimizer,
                 warmup_num_steps=self.args.num_warmup_steps,
@@ -120,7 +148,7 @@ class SFTFoundationTrainerLite:
                 model_name_or_path,
                 torch_dtype=torch.bfloat16,
                 trust_remote_code=True,
-                use_auth_token=True,
+                token=True,
                 attn_implementation="flash_attention_2",
                 low_cpu_mem_usage=(args.ds_stage != 3),
             )
@@ -137,7 +165,7 @@ class SFTFoundationTrainerLite:
                 model_name_or_path,
                 quantization_config=bnb_config,
                 trust_remote_code=True,
-                use_auth_token=True,
+                token=True,
                 attn_implementation="flash_attention_2",
                 low_cpu_mem_usage=(args.ds_stage != 3),
             )
@@ -273,12 +301,25 @@ class SFTFoundationTrainerLite:
                         mean_avg_loss = sum(self.accelerator.gather(torch.tensor([avg_loss]).to(
                             device=self.accelerator.device)).detach().cpu()) / \
                             (args.gradient_accumulation_steps * self.accelerator.num_processes)
+                        
+                        # Get current learning rate
+                        current_lr = self.optimizer.param_groups[0]['lr']
+                        
                         if args.use_log:
-                            self.accelerator.log({"train_loss": mean_avg_loss}, step=step)
+                            # Log only the essential metrics to wandb
+                            log_dict = {
+                                "train_loss": mean_avg_loss,
+                                "learning_rate": current_lr,
+                                "train_step": step,
+                                "global_optimizer_step": num_updated_steps,
+                            }
+                            self.accelerator.log(log_dict, step=num_updated_steps)
                         avg_loss = 0.
 
-                    if args.debug_mode and self.accelerator.is_main_process and step % 10 == 0 and mean_avg_loss is not None:
-                        print(f"step = {step} -- avg_loss = {mean_avg_loss} --num_updated_steps = {num_updated_steps}")
+                    if self.accelerator.is_main_process and step % 10 == 0 and mean_avg_loss is not None:
+                        # Get current learning rate from optimizer
+                        current_lr = self.optimizer.param_groups[0]['lr']
+                        print(f"step = {step} -- avg_loss = {mean_avg_loss} -- num_optimizer_steps = {num_updated_steps} -- lr = {current_lr}")
 
                 except Exception as e:
                     print(f"step = {step} -- rank {self.accelerator.local_process_index}: error:", e)
@@ -327,7 +368,9 @@ class SFTFoundationTrainerLite:
             except:
                 avg_eval_loss = -1.
 
-        # TODO: add logging here
+        # Log evaluation metrics
+        if self.args.use_log and avg_eval_loss != -1:
+            self.accelerator.log({"eval_loss": avg_eval_loss.item()})
 
         return avg_eval_loss
 
@@ -362,7 +405,7 @@ class SFTFoundationTrainerLite:
             print(f"    \nSaving model to ❤️{output_dir}❤️\n")
             
             if args.use_lora:
-                # OPTIONAL TODO: update this if you have multiple LoRA configs
+                # TODO: DPO may have multiple LoRA configs
                 self.model.peft_config["default"].save_pretrained(output_dir)
                 save_file(lora_state_dict, f"{output_dir}/adapter_model.safetensors")
             if save_full:

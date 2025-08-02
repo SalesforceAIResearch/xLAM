@@ -2,7 +2,7 @@ from datasets import interleave_datasets
 from actionstudio.src.foundation_modeling.data_handlers.derived_dataset import PromptAnswerDataset
 
 
-def interleave_data(accelerator, data_objects, sample_probs=None, seed=None, return_type="prompt_answer", fc_mode=True, mask_prompt_loss=True, **kwargs):
+def interleave_data(accelerator, data_objects, sample_probs=None, seed=None, return_type="prompt_answer", script_args=None, fc_mode=True, mask_prompt_loss=True, **kwargs):
     """
     interleave same type of datasets from different sources
 
@@ -21,8 +21,8 @@ def interleave_data(accelerator, data_objects, sample_probs=None, seed=None, ret
     chars_per_token = 0
 
     for d_obj in data_objects:
-        if accelerator.is_main_process: print(f"create datasets from ❤️{d_obj.dataset_name}❤️")
-
+        if accelerator.is_main_process:
+            print(f"create datasets from ❤️{d_obj.dataset_name}❤️")
         train_dataset, eval_dataset = d_obj.create_datasets(return_type="basic", seed=seed)
         train_datasets.append(train_dataset)
         if eval_dataset is not None:
@@ -52,10 +52,12 @@ def interleave_data(accelerator, data_objects, sample_probs=None, seed=None, ret
         prepare_sample_text = data_objects[0].prepare_sample_text
 
         train_datasets = PromptAnswerDataset(
+            accelerator,
             tokenizer,
             train_datasets,
             sample_probs,
             seed,
+            script_args=script_args,
             formatting_func=prepare_sample_text,
             mask_prompt_loss=mask_prompt_loss,
             infinite=True,
@@ -65,10 +67,12 @@ def interleave_data(accelerator, data_objects, sample_probs=None, seed=None, ret
 
         try:
             eval_datasets = PromptAnswerDataset(
+                accelerator,
                 tokenizer,
                 eval_datasets,
                 sample_probs,
                 seed,
+                script_args=script_args,
                 formatting_func=prepare_sample_text,
                 mask_prompt_loss=mask_prompt_loss,
                 infinite=False,
@@ -79,8 +83,8 @@ def interleave_data(accelerator, data_objects, sample_probs=None, seed=None, ret
     
     else: raise Exception("Only support basic or prompt_answer")
 
-    if accelerator.is_main_process: print(f"Data ready! The random shuffle and interleave seeding is {seed} for this device")
-
+    if accelerator.is_main_process:
+        print(f"Data ready! The random shuffle and interleave seeding is {seed} for this device")
     return train_datasets, eval_datasets
 
 

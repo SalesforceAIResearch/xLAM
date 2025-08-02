@@ -10,12 +10,11 @@ class SFTFoundationModelDataBaseV2:
         self.tokenizer = tokenizer
         self.args = args
         self.fc_mode = fc_mode                    # inside main code we need fc_mode as an arg
-        
         self.name = "SFTFoundationModelDataBaseV2"
 
         self.token_try_run = False
 
-        print("tokenizer.name_or_path =", tokenizer.name_or_path)
+        # print("tokenizer.name_or_path =", tokenizer.name_or_path)
         self.chars_per_token = 3.0 # a default chars per token
 
     @property
@@ -79,20 +78,40 @@ class SFTFoundationModelDataBaseV2:
             # First, we process input
             if self.fc_mode and len(tools) > 0:
                 # print("     FC Mode")
-                model_input = self.tokenizer.apply_chat_template(
-                    messages,
-                    tools=tools,
-                    tokenize=False,
-                )
+                if "qwen3" in self.args.model_name.lower():
+                    model_input = self.tokenizer.apply_chat_template(
+                        messages,
+                        tools=tools,
+                        add_generation_prompt=True,
+                        tokenize=False,
+                        enable_thinking=self.args.enable_thinking,
+                    )
+                else:
+                    model_input = self.tokenizer.apply_chat_template(
+                        messages,
+                        tools=tools,
+                        add_generation_prompt=True,
+                        tokenize=False,
+                    )
             else:
                 # print("     Non FC Mode")
-                model_input = self.tokenizer.apply_chat_template(
-                    messages,
-                    tokenize=False
-                )
+                if "qwen3" in self.args.model_name.lower():
+                    model_input = self.tokenizer.apply_chat_template(
+                        messages,
+                        add_generation_prompt=True,
+                        tokenize=False,
+                        enable_thinking=self.args.enable_thinking,
+                    )
+                else:
+                    model_input = self.tokenizer.apply_chat_template(
+                        messages,
+                        add_generation_prompt=True,
+                        tokenize=False
+                    )
             
             # Second, we process output (we required it to be model's response)
             model_response = example["chosen"]
+
             if not model_response.endswith(self.tokenizer.eos_token): model_response += self.tokenizer.eos_token
             
             if not has_reject:
@@ -110,9 +129,9 @@ class SFTFoundationModelDataBaseV2:
                     "chosen": model_response,
                     "reject": model_reject,
                 }
-        except:
-            warnings.warn(
-                "Failed to parse the data example. Maybe check your fields!"
+        except Exception as e:
+            raise ValueError(
+                f"Failed to parse the data example. Please check your fields like type, format, etc.\n  {e}" 
             )
 
             # we do not raise exception, instead, we created the warning then skip this instance so that we dont break training
