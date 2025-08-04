@@ -24,9 +24,11 @@ wandb login --relogin
 Please refer `xLAM/actionstudio/examples/trainings/README.md` for a list of bash training scripts. 
 
 ### To run SFT Training
+🚀 Please follow [Example Training Bash Scripts](https://github.com/SalesforceAIResearch/xLAM/blob/main/actionstudio/examples/trainings/README.md) for comprehensive instructions. 
+
 1. Prepare training-ready data format, following instruction under `actionstudio/src/data_pipeline`
 
-2. Install and activate our conda environment
+2. Activate our conda environment
 ```
 conda activate actionstudio
 ```
@@ -41,7 +43,7 @@ conda activate actionstudio
 
 1. Prepare training-ready data format, following instruction under `actionstudio/src/data_pipeline` with additional field of `reject` for each data instance.
 
-2. Install and activate our conda environment
+2. Activate our conda environment
 ```
 conda activate actionstudio
 ```

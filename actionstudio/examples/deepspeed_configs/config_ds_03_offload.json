@@ -1,9 +1,7 @@
 {
-  
     "bf16": {
         "enabled": true
     },
-
     "optimizer": {
         "type": "AdamW",
         "params": {
@@ -11,18 +9,15 @@
             "weight_decay": "auto"
         }
     },
-
- "scheduler": {
+    "scheduler": {
         "type": "WarmupDecayLR",
         "params": {
-            "warmup_min_lr":  1e-6,
+            "warmup_min_lr": 1e-6,
             "warmup_max_lr": "auto",
             "warmup_num_steps": "auto",
             "total_num_steps": "auto"
         }
     },
-
-
     "zero_optimization": {
         "offload_optimizer": {
             "device": "cpu",
@@ -39,7 +34,6 @@
         "stage3_max_reuse_distance": 1e9,
         "stage3_gather_16bit_weights_on_model_save": true
     },
-
     "gradient_accumulation_steps": "auto",
     "gradient_clipping": "auto",
     "steps_per_print": 1,
