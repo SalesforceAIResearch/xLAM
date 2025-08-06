@@ -7,6 +7,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--trained_model_root", type=str, help="the path to the trained model")
 parser.add_argument("--base_model_root", type=str, help="the path to the base model")
+parser.add_argument("--use_16bit", type=bool, help="whether to use 16bit model", required=False, default=True)
 parser.add_argument("--adapter_config_template", type=str, help="the path to adapter config template", required=False, default="")
 
 def main(script_args) -> None:
@@ -15,6 +16,7 @@ def main(script_args) -> None:
     
     if script_args.adapter_config_template != "":
         with open(script_args.adapter_config_template) as f: adapter_content = json.load(f)
+        print(json.dumps(adapter_content, indent=4))
 
     print("*" * 50)
     print(f"Post-processing for {trained_model_root}")
@@ -40,8 +42,8 @@ def main(script_args) -> None:
             f"--model_name_or_path", raw_model_dir,
             f"--custom_path", custom_path,
             f"--output_root", output_dir,
+            f"--use_16bit", str(script_args.use_16bit),
         ])
-
     else:
         raw_model_dir = base_model_root
         state_dict_path = f"{trained_model_root}/final_checkpoint/full_model.safetensors"

@@ -16,6 +16,10 @@ class AnyDatasetLoader(SFTFoundationModelDataBaseV2):
     def _load_dataset(self, dataset_name, split="train", seed=None):
         """
         Load dataset from the specified directory or Hugging Face dataset.
+        
+        # trust_remote_code=True to suppress the warning. 
+        # The datasets library treats any custom dataset script (even local ones) 
+        # as "remote code" that needs explicit trust.
         """
         if os.path.exists(os.path.join(self.data_save_dir, dataset_name)):
             data = load_dataset(
@@ -26,6 +30,7 @@ class AnyDatasetLoader(SFTFoundationModelDataBaseV2):
                 cache_dir=os.path.join(self.data_save_dir, "monica_cached", dataset_name),
                 num_proc = self.args.num_workers if not self.args.streaming else None,
                 streaming = self.args.streaming,
+                trust_remote_code=True,
             )           
         else:
             try:
