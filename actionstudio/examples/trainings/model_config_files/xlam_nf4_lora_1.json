@@ -1,0 +1,123 @@
+{
+    "training_configuration": {
+        "total_data_samples": 32000,
+        "data_mix_or_unify": "unify",
+        "per_device_train_batch_size": 8,
+        "per_device_eval_batch_size": 1,
+        "num_processes (num_nodes * num_gpus_per_node)": 8,
+        "gradient_accumulation_steps": 1,
+        "total_train_batch_size": 64,
+        "total_training_steps": 500,
+        "total_optimizer_steps": 500,
+        "save_steps": 250,
+        "logging_steps": 10
+    },
+    "model_configuration": {
+        "model_name": "qwen2.5/raw/qwen2.5_7b_instruct",
+        "seq_length": 4096,
+        "use_lora": true,
+        "fc_mode": true,
+        "enable_thinking": false,
+        "mask_prompt_loss": true,
+        "gradient_checkpointing": true
+    },
+    "optimizer_configuration": {
+        "optimizer_type": "adamw",
+        "learning_rate": 5e-05,
+        "min_learning_rate": 1e-06,
+        "weight_decay": 0.01
+    },
+    "scheduler_configuration": {
+        "lr_scheduler_type": "cosine",
+        "num_warmup_steps": 100,
+        "scheduler_params": null
+    },
+    "deepspeed_configuration": {
+        "ds_stage": 2,
+        "ds_config_path": "xLAM/actionstudio/examples/deepspeed_configs/config_ds_02.json",
+        "weight_precision": "nf4"
+    },
+    "data_configuration": {
+        "data_mix_recipe_yaml_config": "xLAM/actionstudio/examples/data_configs/data_mixture_config.yaml",
+        "data_save_dir": "xLAM/actionstudio/datasets/train_data",
+        "is_data_pre_verification": false,
+        "streaming": true,
+        "shuffle_buffer_size": 500000,
+        "num_workers": 4
+    },
+    "logging_configuration": {
+        "use_log": true,
+        "log_with": "wandb",
+        "project_name": "actionstudio",
+        "run_name": "sft_lora_fc_true_nf4_ds_2_sq_4096_bs_8_lr_5e-5_ga_1__xlam_nf4_lora_1",
+        "model_save_id": "xlam_nf4_lora_1",
+        "model_output_dir": "sft_lora_fc_true_nf4_ds_2_sq_4096_bs_8_lr_5e-5_ga_1__xlam_nf4_lora_1",
+        "log_freq": 1
+    },
+    "other_configuration": {
+        "seed": 9120,
+        "debug_mode": false
+    },
+    "lora_configuration": {
+        "lora_alpha": 64,
+        "lora_dropout": 0.05,
+        "lora_r": 32,
+        "lora_target_modules": "q_proj,v_proj,k_proj,o_proj"
+    },
+    "deepspeed_actual_full_config": {
+        "bf16": {
+            "enabled": true
+        },
+        "optimizer": {
+            "type": "adamw",
+            "params": {
+                "lr": 5e-05,
+                "betas": [
+                    0.9,
+                    0.999
+                ],
+                "eps": 1e-08,
+                "weight_decay": 0.01,
+                "adam_w_mode": true,
+                "torch_adam": true
+            }
+        },
+        "scheduler": {
+            "type": "WarmupCosineLR",
+            "params": {
+                "warmup_min_ratio": 0.19999999999999998,
+                "warmup_num_steps": 100,
+                "cos_min_ratio": 0.19999999999999998,
+                "total_num_steps": 500,
+                "begin_lr": 1e-06,
+                "end_lr": 1e-06
+            }
+        },
+        "zero_optimization": {
+            "stage": 2,
+            "overlap_comm": true,
+            "allgather_partitions": true,
+            "allgather_bucket_size": 500000000.0,
+            "reduce_scatter": true,
+            "contiguous_gradients": true,
+            "reduce_bucket_size": "auto"
+        },
+        "gradient_accumulation_steps": "auto",
+        "gradient_clipping": "auto",
+        "steps_per_print": 1,
+        "train_batch_size": "auto",
+        "train_micro_batch_size_per_gpu": 8,
+        "wall_clock_breakdown": false
+    },
+    "deepspeed_full_scheduler_config": {
+        "type": "WarmupCosineLR",
+        "params": {
+            "warmup_min_ratio": 0.19999999999999998,
+            "warmup_num_steps": 100,
+            "cos_min_ratio": 0.19999999999999998,
+            "total_num_steps": 500,
+            "begin_lr": 1e-06,
+            "end_lr": 1e-06
+        }
+    }
+}
