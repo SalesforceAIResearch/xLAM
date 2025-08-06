@@ -1,4 +1,4 @@
-transformers>=4.51.2
+transformers>=4.55.0
 packaging==24.0
 deepspeed>=0.14.4
 ray==2.30.0

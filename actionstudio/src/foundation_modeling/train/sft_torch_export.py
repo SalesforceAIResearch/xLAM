@@ -33,7 +33,7 @@ parser.add_argument("--custom_path", type=str, default="")
 parser.add_argument("--output_root", type=str)
 parser.add_argument("--save_output", type=bool, default=True)
 parser.add_argument("--use_base", type=bool, default=False)
-parser.add_argument("--use_16bit", type=bool, default=True)
+parser.add_argument("--use_16bit", type=lambda x: x.lower() == 'true', default=True)
 
 def load_model(args):
     use_16bit = bool(args.use_16bit)
@@ -43,7 +43,7 @@ def load_model(args):
     
     if use_16bit:
         type_16bit = torch.bfloat16
-        print("Load 16bit model")
+        print("Load ❤️ 16bit ❤️ model ...")
         
         model = AutoModelForCausalLM.from_pretrained(
             model_name_or_path,
@@ -62,6 +62,7 @@ def load_model(args):
             
             model.load_state_dict(state_dict, strict=True)
     else:
+        print("Load ❤️ 4bit ❤️ model ...")
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
@@ -69,7 +70,6 @@ def load_model(args):
             bnb_4bit_use_double_quant=True,
         )
 
-        print("Load model")
         model = AutoModelForCausalLM.from_pretrained(
             model_name_or_path,
             quantization_config=bnb_config,

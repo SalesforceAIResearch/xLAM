@@ -1,4 +1,4 @@
-# Fine-Tune Llama2-7b on SE paired dataset
+# Fine-Tune model with SFT (Supervised Fine-Tuning)
 import os
 from dataclasses import dataclass, field
 from accelerate import  DeepSpeedPlugin, Accelerator
@@ -65,6 +65,8 @@ class ScriptArguments:
     optimizer_type: Optional[str] = field(default="adamw", metadata={"help": "the optimizer type"})
     max_steps: Optional[int] = field(default=None, metadata={"help": "the maximum number of sgd steps, use None to allow auto step calculation"})
     logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency"})
+    num_nodes: Optional[int] = field(default=1, metadata={"help": "the number of gpu nodes"})
+    num_gpus_per_node: Optional[int] = field(default=8, metadata={"help": "the number of gpus per node"})
     per_device_train_batch_size: Optional[int] = field(default=3, metadata={"help": "the per device train batch size"})
     per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "the per device eval batch size"})
     save_steps: Optional[int] = field(default=None, metadata={"help": "the checkoint saving frequency (None to save every max_steps)"})
@@ -96,12 +98,13 @@ class ScriptArguments:
     debug_mode: Optional[bool] = field(default=False, metadata={"help": "turning on debug mode or not"})
 
 
-def prepare_accelerator(script_args):
+def prepare_accelerator(script_args, num_total_data):
     """
     Given the script args, prepare the accelerator engine with deepspeed plugin.
     
     Args:
         script_args: training script args
+        num_total_data: total number of data samples
     
     Returns:
         accelerator: the accelerator engine
@@ -126,12 +129,19 @@ def prepare_accelerator(script_args):
     ds_config["optimizer"] = optimizer_config
     # Only print once (will be shown when DeepSpeed prints full config anyway)
     
+    # set max_steps (if not provided)
+    if script_args.max_steps is None:
+        script_args.max_steps = num_total_data // (script_args.per_device_train_batch_size * script_args.num_nodes * script_args.num_gpus_per_node)
+    
+    # by default, save the model every half of the max_steps
+    if script_args.save_steps is None:
+        script_args.save_steps = script_args.max_steps // 2
+    
+    # Calculate optimizer steps (max_steps is already per-process)
+    num_optimizer_steps = script_args.max_steps // script_args.gradient_accumulation_steps
+
     # Update scheduler configuration if needed
     # Always configure scheduler to ensure it matches the training parameters
-    # Calculate optimizer steps
-    # max_steps is already per-process (calculated in prepare_data)
-    num_optimizer_steps = script_args.max_steps // script_args.gradient_accumulation_steps
-    
     # Map lr_scheduler_type to DeepSpeed scheduler type
     scheduler_type_mapping = {
         "cosine": "WarmupCosineLR",
@@ -233,14 +243,18 @@ def prepare_accelerator(script_args):
 
     return accelerator, ds_config
 
-def prepare_data(accelerator, script_args, ds_config, seed=9120):
+def prepare_data(accelerator, script_args, ds_config, seed=9120, sample_probs=None, yaml_data=None, num_total_data=None):
     """
     Given the script args and optionally the random seed, prepare the tokenizer, train, and eval dataset and the data collator for training.
     
     Args:
         script_args: training script args
         ds_config: DeepSpeed configuration from prepare_accelerator
-        
+        seed: random seed, default is 9120
+        sample_probs: sample probabilities for data mixing
+        yaml_data: data mix recipe yaml data
+        num_total_data: total number of data samples
+
     Returns:
         tokenizer: tokenizer object
         train_dataset: the train dataset object
@@ -264,10 +278,6 @@ def prepare_data(accelerator, script_args, ds_config, seed=9120):
         tokenizer.pad_token = "[PAD]"
         tokenizer.pad_token_id = 0
 
-    # load data mix config
-    yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config)
-    sample_probs, yaml_data, num_total_data = create_sampled_ratio(yaml_data)
-
     # only want to check the `calculated_steps` when doing real training, not during data verifying
     if not script_args.is_data_pre_verification:     
         # Calculate the max training steps. Note the num_optimization_updates = max_steps / gradient_accumulation_steps
@@ -275,18 +285,11 @@ def prepare_data(accelerator, script_args, ds_config, seed=9120):
         calculated_steps = num_total_data // (script_args.per_device_train_batch_size * accelerator.num_processes)
         
         # If max_steps is provided, validate it matches calculated value
-        if accelerator.is_main_process and not script_args.debug_mode and script_args.max_steps is not None and script_args.max_steps != calculated_steps:
+        if accelerator.is_main_process and not script_args.debug_mode and script_args.max_steps != calculated_steps:
             raise ValueError(
                 f"❤️ Provided max_steps ({script_args.max_steps}) doesn't match calculated steps ({calculated_steps}) ❤️. "
                 f"Please check your data configuration and batch settings!"
             )
-        
-        # Set max_steps to calculated value if not explicitly provided
-        if script_args.max_steps is None:
-            script_args.max_steps = calculated_steps
-        # By default, save the model every half of the max_steps
-        if script_args.save_steps is None:
-            script_args.save_steps = script_args.max_steps // 2
         
         if accelerator.is_main_process:
             # Print training configuration details
@@ -396,7 +399,6 @@ def prepare_data(accelerator, script_args, ds_config, seed=9120):
             
             # Load and add the actual DeepSpeed configuration
             # ds_config is already passed from prepare_accelerator with all configurations set
-            
             config_to_save["deepspeed_actual_full_config"] = ds_config
             
             # Also save the DeepSpeed scheduler config separately for easy access
@@ -444,8 +446,12 @@ def prepare_data(accelerator, script_args, ds_config, seed=9120):
     return tokenizer, train_dataset, eval_dataset, collator
 
 def main(script_args):
+    # load data mix config
+    yaml_data = load_yaml_file(script_args.data_mix_recipe_yaml_config)
+    sample_probs, yaml_data, num_total_data = create_sampled_ratio(yaml_data)
+      
     # spin up accelerator
-    accelerator, ds_config = prepare_accelerator(script_args)
+    accelerator, ds_config = prepare_accelerator(script_args, num_total_data)
         
     # login HF (remove if not use any data from HF)
     if accelerator.is_main_process:
@@ -458,7 +464,7 @@ def main(script_args):
     seed = init_device_seed(seed=script_args.seed, accelerator=accelerator)
     
     # setup data
-    tokenizer, train_dataset, eval_dataset, collator = prepare_data(accelerator, script_args, ds_config, seed)
+    tokenizer, train_dataset, eval_dataset, collator = prepare_data(accelerator, script_args, ds_config, seed, sample_probs, yaml_data, num_total_data)
 
     # setup trainer
     trainer = SFTFoundationTrainerLite(
