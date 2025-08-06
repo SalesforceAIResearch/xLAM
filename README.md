@@ -29,6 +29,7 @@
 ---
 
 ## 🎉🎉🎉 News
+- **[08-05.2025]** 💫 [ActionStudio](./actionstudio/README.md) has been updated with new features, improved training configuration tracking, and general code enhancements!
 - **[05-12.2025]** Our [xLAM Presentation Slides](https://docs.google.com/presentation/d/1IAdUPSFLd0l05T_IwfcUPI5b_pe0StNFjBd6Srosap8/edit?usp=sharing) for the **NAACL 2025 Oral Session** are now live!   📂 We’ve also open-sourced [**APIGen-MT-5k**](https://huggingface.co/datasets/Salesforce/APIGen-MT-5k) — a compact yet powerful dataset to explore multi-turn function-calling.
 - **[04-15.2025]** 🏆🏆🏆 **xLAM-2-fc-r achieves Top-1 performance** on the latest [BFCL Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html)!
 - **[04-15.2025]**: 🚀🚀🚀 **ActionStudio is now open-source!** Checkout our [paper](https://arxiv.org/abs/2503.22673) and [code](ActionStudio_README.md) for full details.
@@ -320,10 +321,25 @@ The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4
 
 ## 🛠️ Code Updates History
 
-**May 09, 2025**
+
+#### 💫 **Aug 05, 2025**
+- **Unified config tracking**
+Every run now writes its full training configuration to a single JSON file—keyed by a unique model ID—in [model_config_files](./examples/trainings/model_config_files/) for easy reference and reproducibility.
+
+- **HF ⇄ DeepSpeed parity**
+Resolved inconsistencies between Hugging Face and DeepSpeed hyper-parameter settings to ensure they stay perfectly in sync.
+
+- **Learning-rate scheduler tuning**
+Refined default scheduler parameters for smoother warm-up and steadier convergence.
+
+- **General code cleanup**
+Streamlined modules, removed dead paths, and added inline docs for easier maintenance.
+
+
+#### **May 09, 2025**
 - Fixed argument error in data_verifier. Ref to [#24](https://github.com/SalesforceAIResearch/xLAM/issues/24).
 
-**April 14, 2025**
+#### **April 14, 2025**
 - Updated dependency versions to support the latest models and techniques
 - Added auto calculation and assignment of training steps
 - Enabled automatic checkpoint merging at the end of training. 
