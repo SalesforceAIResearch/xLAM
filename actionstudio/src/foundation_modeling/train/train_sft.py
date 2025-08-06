@@ -1,4 +1,5 @@
 # Fine-Tune model with SFT (Supervised Fine-Tuning)
+# Last updated: 08-05-2025 by Jianguo Zhang (jianguozhang.personal@gmail.com)
 import os
 from dataclasses import dataclass, field
 from accelerate import  DeepSpeedPlugin, Accelerator

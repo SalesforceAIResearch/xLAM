@@ -60,7 +60,7 @@ The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4
 
 ## 🛠️ Code Updates History
 
-**Aug 05, 2025**
+#### 💫 **Aug 05, 2025**
 - **Unified config tracking**
 Every run now writes its full training configuration to a single JSON file—keyed by a unique model ID—in [model_config_files](./actionstudio/examples/trainings/model_config_files/) for easy reference and reproducibility.
 
@@ -74,10 +74,10 @@ Refined default scheduler parameters for smoother warm-up and steadier convergen
 Streamlined modules, removed dead paths, and added inline docs for easier maintenance.
 
 
-**May 09, 2025**
+#### **May 09, 2025**
 - Fixed argument error in data_verifier. Ref to [#24](https://github.com/SalesforceAIResearch/xLAM/issues/24).
 
-**April 14, 2025**
+#### **April 14, 2025**
 - Updated dependency versions to support the latest models and techniques
 - Added auto calculation and assignment of training steps
 - Enabled automatic checkpoint merging at the end of training. 
