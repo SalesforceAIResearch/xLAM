@@ -15,6 +15,11 @@ Verify training data integrity:
 bash sft_data_verifier.sh
 ```
 
+### Model Training
+
+❤️ This section shows how to launch training jobs. 
+
+Each time a run starts, its complete hyper-parameters and settings are automatically saved—tagged with a unique model-save ID—in [model_config_files](./model_config_files/) for easy reference and reproducibility.
 
 #### Single-Node Full Fine-Tuning
 Train the model via full fine-tuning with bfloat16 precision on a single node:

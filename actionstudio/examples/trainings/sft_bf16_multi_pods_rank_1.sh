@@ -60,7 +60,7 @@ DATA_MIX_RECIPE="<YOUR_PATH_HERE>/xLAM/actionstudio/examples/data_configs/data_m
 BASE_MODEL_NAME="<YOUR_PATH_HERE>" # e.g., "/export/home/qwen2.5_32b_instruct"
 
 ## Unique output model id
-MODEL_SAVE_ID=xlam_bf16_1
+MODEL_SAVE_ID=xlam_bf16_multi_1
 
 ## Training configs 
 BATCH_SIZE=2

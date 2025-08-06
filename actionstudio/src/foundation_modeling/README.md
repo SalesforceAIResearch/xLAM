@@ -24,7 +24,8 @@ wandb login --relogin
 Please refer `xLAM/actionstudio/examples/trainings/README.md` for a list of bash training scripts. 
 
 ### To run SFT Training
-🚀 Please follow [Example Training Bash Scripts](https://github.com/SalesforceAIResearch/xLAM/blob/main/actionstudio/examples/trainings/README.md) for comprehensive instructions. 
+
+🚀 Please follow [Example Training Bash Scripts and Instructions](https://github.com/SalesforceAIResearch/xLAM/blob/main/actionstudio/examples/trainings/README.md) for comprehensive instructions. 
 
 1. Prepare training-ready data format, following instruction under `actionstudio/src/data_pipeline`
 

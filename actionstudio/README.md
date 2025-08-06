@@ -48,6 +48,8 @@ actionstudio/
 
 🔍 Most top-level folders include a **README.md** with detailed instructions and explanations.
 
+❤️ Please follow [Example Training Bash Scripts and Instructions](https://github.com/SalesforceAIResearch/xLAM/blob/main/actionstudio/examples/trainings/README.md) for comprehensive instructions. 
+
 ## ⚡ Efficiency
 <img width="1705" alt="image" src="https://github.com/user-attachments/assets/7885ba5f-2155-431b-941f-0cbfc6641432" />
 
@@ -57,6 +59,20 @@ actionstudio/
 The code is licensed under Apache 2.0, and the datasets are under the CC-BY-NC-4.0 License. The data provided are intended for research purposes only.
 
 ## 🛠️ Code Updates History
+
+**Aug 05, 2025**
+- **Unified config tracking**
+Every run now writes its full training configuration to a single JSON file—keyed by a unique model ID—in [model_config_files](./examples/trainings/model_config_files/) for easy reference and reproducibility.
+
+- **HF ⇄ DeepSpeed parity**
+Resolved inconsistencies between Hugging Face and DeepSpeed hyper-parameter settings to ensure they stay perfectly in sync.
+
+- **Learning-rate scheduler tuning**
+Refined default scheduler parameters for smoother warm-up and steadier convergence.
+
+- **General code cleanup**
+Streamlined modules, removed dead paths, and added inline docs for easier maintenance.
+
 
 **May 09, 2025**
 - Fixed argument error in data_verifier. Ref to [#24](https://github.com/SalesforceAIResearch/xLAM/issues/24).
