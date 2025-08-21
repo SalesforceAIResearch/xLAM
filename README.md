@@ -29,6 +29,7 @@
 ---
 
 ## 🎉🎉🎉 News
+- **[08-20.2025]** 🎉🎉🎉 [ActionStudio](https://github.com/SalesforceAIResearch/xLAM/tree/main/actionstudio) and [LATTE](https://latte-web.github.io/) (Learning to think with vision specialists) are both accepted by EMNLP 2025 Main conference! 
 - **[08-05.2025]** 💫 [ActionStudio](./actionstudio/README.md) has been updated with new features, improved training configuration tracking, and general code enhancements!
 - **[05-12.2025]** Our [xLAM Presentation Slides](https://docs.google.com/presentation/d/1IAdUPSFLd0l05T_IwfcUPI5b_pe0StNFjBd6Srosap8/edit?usp=sharing) for the **NAACL 2025 Oral Session** are now live!   📂 We’ve also open-sourced [**APIGen-MT-5k**](https://huggingface.co/datasets/Salesforce/APIGen-MT-5k) — a compact yet powerful dataset to explore multi-turn function-calling.
 - **[04-15.2025]** 🏆🏆🏆 **xLAM-2-fc-r achieves Top-1 performance** on the latest [BFCL Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html)!
