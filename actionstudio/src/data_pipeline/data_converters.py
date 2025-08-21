@@ -169,7 +169,7 @@ def main():
 
     unified_data_path = args.unified_data_path
     train_data_path = args.output_data_path
-    use_data_keys = ['toolace', 'toolalpaca', 'invocation_greeting', 'xlam-fc-60k', 'iqa', 'alfwrold']
+    use_data_keys = ['actionstudio-98k'] # a list of dataset names 
     uni_data_dict = get_unified_data_dict(use_data_keys, unified_data_path, is_expand=False)
     converted_train_data_dict = convert_data_dict_v2_to_train_model_free(uni_data_dict)
     print(converted_train_data_dict.keys())
